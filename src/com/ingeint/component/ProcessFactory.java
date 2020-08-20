@@ -1,5 +1,10 @@
 package com.ingeint.component;
 
+import org.eevolution.process.HRCreateConcept;
+import org.eevolution.process.HRCreatePeriods;
+import com.ingeint.process.RecalculateLoan;
+import com.ingeint.process.PaymentSelection;
+
 import com.ingeint.base.CustomProcessFactory;
 
 public class ProcessFactory extends CustomProcessFactory{
@@ -14,9 +19,9 @@ public class ProcessFactory extends CustomProcessFactory{
 	 */
 	@Override
 	protected void initialize() {
-		registerProcess(org.eevolution.process.HRCreatePeriods.class);
-
-		registerProcess(com.ingeint.process.RecalculateLoan.class);
-		registerProcess(com.ingeint.process.PaymentSelection.class);
+		registerProcess(HRCreatePeriods.class);
+		registerProcess(HRCreateConcept.class);
+		registerProcess(RecalculateLoan.class);
+		registerProcess(PaymentSelection.class);
 	}
 }

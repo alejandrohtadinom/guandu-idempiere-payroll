@@ -36,6 +36,7 @@ import org.eevolution.model.MHRPayrollConcept;
 import org.eevolution.model.MHRPeriod;
 import org.eevolution.model.MHRProcess;
 import org.eevolution.model.MHRYear;
+import org.eevolution.model.X_HR_Contract;
 
 import com.ingeint.base.CustomModelFactory;
 import com.ingeint.model.MHRLoan;
@@ -73,5 +74,6 @@ public class ModelFactory extends CustomModelFactory {
 		registerTableModel(MHRPaymentSelection.Table_Name, MHRPaymentSelection.class);
 		registerTableModel(MHRPaymentSelectionLine.Table_Name, MHRPaymentSelectionLine.class);
 		registerTableModel (MHRSectorCode.Table_Name, MHRSectorCode.class);
+		registerTableModel(X_HR_Contract.Table_Name, X_HR_Contract.class);
 	}
 }

@@ -65,6 +65,7 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Msg;
+import org.compiere.util.TimeUtil;
 import org.eevolution.model.MHRAttribute;
 import org.eevolution.model.MHRConcept;
 import org.zkoss.zk.ui.event.Event;
@@ -482,6 +483,7 @@ implements IFormController,EventListener<Event>, WTableModelListener,  ValueChan
 			conceptTest.setScriptText(m_txbSqlField.getValue());
 		conceptTest.setHR_Department_ID(0);
 		conceptTest.loadParameter();
+		long start = System.currentTimeMillis();
 		if (concept!=null){
 			if (!concept.getType().equals(MHRConcept.TYPE_RuleEngine)){
 				resultField.setText(String.valueOf(conceptTest.testConcept(concept.getValue())));
@@ -491,9 +493,15 @@ implements IFormController,EventListener<Event>, WTableModelListener,  ValueChan
 		}else{
 			resultField.setText(String.valueOf(conceptTest.executeScriptManual(0, "")));
 		}
+		
+		long end = System.currentTimeMillis();
+		long timeExecution = end - start;
+		timeExecution = timeExecution / 1000;
+		
+		String description = conceptTest.getM_description()!=null?conceptTest.getM_description().toString():"";
 			
-		descriptionField.setValue(conceptTest.getM_description()!=null?conceptTest.getM_description().toString():"");
-		m_evalField.setValue(conceptTest.getM_eval().toString());
+		descriptionField.setValue(description);
+		m_evalField.setValue(conceptTest.getM_eval().toString() + "\n Tiempo de Ejecucion: " + timeExecution + " seg.");
 		
 	}
 	

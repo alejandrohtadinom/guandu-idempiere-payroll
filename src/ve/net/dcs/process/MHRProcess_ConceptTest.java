@@ -317,11 +317,11 @@ public class MHRProcess_ConceptTest extends MHRProcess implements DocAction
 			params.add(concept.getHR_Concept_ID());
 			whereClause.append(" AND EXISTS (SELECT 1 FROM HR_Concept conc WHERE conc.HR_Concept_ID = HR_Attribute.HR_Concept_ID )");
 
-
+			if(m_employee != null) {
 				whereClause.append(" AND (C_BPartner_ID = ? OR C_BPartner_ID IS NULL) AND (HR_Employee_ID = ? OR HR_Employee_ID IS NULL)");
 				params.add(m_employee.getC_BPartner_ID());
 				params.add(m_employee.get_ID());
-			
+			}
 
 			att = new Query(getCtx(), MHRAttribute.Table_Name, whereClause.toString(), get_TrxName())
 			.setParameters(params)
@@ -2026,9 +2026,9 @@ public class MHRProcess_ConceptTest extends MHRProcess implements DocAction
 
 			m_scriptCtx.put("_DateStart", m_employee.getStartDate());
 			m_scriptCtx.put("_DateEnd", m_employee.getEndDate() == null ? TimeUtil.getDay(2999, 12, 31) : m_employee.getEndDate());
-			
+			m_scriptCtx.put("_JobEmployee", m_employee.getHR_Job_ID());
 		}
-		m_scriptCtx.put("_JobEmployee", m_employee.getHR_Job_ID());
+		
 		
 		m_scriptCtx.put("_C_BPartner_ID", getC_BPartner_ID());
 		if (period ==null)

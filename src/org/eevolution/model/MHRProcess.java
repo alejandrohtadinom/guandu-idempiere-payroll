@@ -663,7 +663,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 
 		} catch (Exception e) {
 			throw new AdempiereException("Execution error - @AD_Rule_ID@="
-					+ rulee.getValue() + " \n " + errorMsg);
+					+ rulee.getValue() + " \n " + errorMsg + " \n " + e.getLocalizedMessage());
 		}
 		if (rulee.get_Value("ctxVariable")!=null)
 			m_scriptCtx.put((String) rulee.get_Value("ctxVariable"), result);
