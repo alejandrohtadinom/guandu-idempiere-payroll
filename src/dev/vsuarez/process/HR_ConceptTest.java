@@ -43,11 +43,9 @@ public class HR_ConceptTest extends CustomProcess {
 		double result=0.0;
 		MHRProcess_ConceptTest process = new MHRProcess_ConceptTest(getCtx(), p_HR_Process_ID, get_TrxName());
 		
-		for(int i=0; i<10; i++) {
-			double turnodiurno = (20*7) + 35 + 45 + (10 *2.5);
-			result= turnodiurno*8;
-			description = "Cantidad: "+8;
-		}
+		double turnodiurno = (process.getConcept("CC_SALARIO_HORA_NOCTURNA")*7) + process.getConcept("CC_PRIMA_COMIDA_NOCTURNO") +(process.getConcept("CC_SALARIO_HORA_EXTRA_NOCTURNA") *2.5);
+		result= turnodiurno*process.getAttribute("A_TURNO_NOCTURNO");
+		description="Cantidad: "+process.getAttribute("A_TURNO_NOCTURNO");
 		long end = System.currentTimeMillis();
 		long timeExecution = end - start;
 		timeExecution = timeExecution / 1000;
