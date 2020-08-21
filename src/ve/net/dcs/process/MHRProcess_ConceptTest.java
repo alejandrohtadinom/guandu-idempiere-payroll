@@ -349,7 +349,8 @@ public class MHRProcess_ConceptTest extends MHRProcess implements DocAction
 				throw new AdempiereException("Recursion loop detected in concept " + concept.getValue());
 			}
 			activeConceptRule.add(concept);
-			result = executeScript(AD_Rule_ID, ColunmType);
+			//result = executeScript(AD_Rule_ID, ColunmType);
+			result = 0.0;
 			activeConceptRule.remove(concept);
 			if (result == null)
 			{
@@ -370,10 +371,10 @@ public class MHRProcess_ConceptTest extends MHRProcess implements DocAction
 			
 		}else if (scriptText.toString().length()>0){
 		
-			result = executeScript(AD_Rule_ID, ColunmType);
+			result = 0.0;
 			
 		}else{
-			result=new Double(0);
+			result= 0.0;
 		}
 		if (m_description == null)
 			m_description = "N/A";
