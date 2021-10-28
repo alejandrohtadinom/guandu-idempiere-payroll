@@ -185,7 +185,7 @@ public class MHRMovement extends X_HR_Movement
 		}
 		catch (Exception e) 
 		{
-			throw new AdempiereException("@Script Error@");
+			throw new AdempiereException("@Script Error@ " + e.getLocalizedMessage());
 		}
 	}
 	

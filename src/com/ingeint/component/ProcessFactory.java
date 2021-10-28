@@ -3,6 +3,9 @@ package com.ingeint.component;
 import org.eevolution.process.HRCreateConcept;
 import org.eevolution.process.HRCreatePeriods;
 import com.ingeint.process.RecalculateLoan;
+
+import dev.vsuarez.process.HR_ConceptTest;
+
 import com.ingeint.process.PaymentSelection;
 
 import com.ingeint.base.CustomProcessFactory;
@@ -23,5 +26,6 @@ public class ProcessFactory extends CustomProcessFactory{
 		registerProcess(HRCreateConcept.class);
 		registerProcess(RecalculateLoan.class);
 		registerProcess(PaymentSelection.class);
+		registerProcess(HR_ConceptTest.class);
 	}
 }
