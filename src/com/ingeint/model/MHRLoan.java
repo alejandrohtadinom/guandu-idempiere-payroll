@@ -276,12 +276,6 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 	}
 
 	@Override
-	public int getC_Currency_ID() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public BigDecimal getApprovalAmt() {
 		// TODO Auto-generated method stub
 		return null;

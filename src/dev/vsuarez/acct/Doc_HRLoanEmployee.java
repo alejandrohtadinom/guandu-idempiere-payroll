@@ -4,16 +4,19 @@
 package dev.vsuarez.acct;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import org.compiere.acct.Doc;
 import org.compiere.acct.Fact;
 import org.compiere.acct.FactLine;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
-import org.compiere.model.MBPartner;
 import org.compiere.model.MCharge;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
 
 import com.ingeint.model.MHRLoan;
@@ -66,8 +69,8 @@ public class Doc_HRLoanEmployee extends Doc {
 
 	@Override
 	public BigDecimal getBalance() {
-		// TODO Auto-generated method stub
-		return null;
+		BigDecimal retValue = Env.ZERO;
+		return retValue; 
 	}
 
 	/**
@@ -81,15 +84,17 @@ public class Doc_HRLoanEmployee extends Doc {
 	 */
 	@Override
 	public ArrayList<Fact> createFacts(MAcctSchema as) {
+		if(m_loan.getC_Charge_ID() <=0)
+			return null;
 		Fact fact = new Fact(this, as, Fact.POST_Actual);
-		
 		MAccount acct = MCharge.getAccount(m_loan.getC_Charge_ID(), as);
 		FactLine fl = fact.createLine(null, acct, m_loan.getC_Currency_ID(), m_loan.getAmt(), null);
+		
 		if(fl != null) {
 			fl.setAD_Org_ID(m_loan.getAD_Org_ID());
 			fl.setC_BPartner_ID(m_loan.getC_BPartner_ID());
 		}
-		//acct = getAccount(Doc., as)
+		acct = getAccountBP(as);
 		fl = fact.createLine(null, acct, m_loan.getC_Currency_ID(), null, m_loan.getAmt());
 		if(fl != null) {
 			fl.setAD_Org_ID(m_loan.getAD_Org_ID());
@@ -100,5 +105,50 @@ public class Doc_HRLoanEmployee extends Doc {
 		facts.add(fact);
 		return facts;
 	} 	//  createFact
+	
+	/**
+	 *	Get the account for Accounting Schema of Employee
+	 *  @param AcctType see ACCTTYPE_*
+	 *  @param as accounting schema
+	 *  @return Account BP
+	 */
+	public MAccount getAccountBP(MAcctSchema as) {
+		int C_ValidCombination_ID = getValidCombination_ID(as);
+		if (C_ValidCombination_ID == 0)
+			return null;
+		//	Return Account
+		MAccount acct = MAccount.get (as.getCtx(), C_ValidCombination_ID);
+		return acct;
+	}	//	getAccountBP
+
+	public int getValidCombination_ID(MAcctSchema as) {
+		String sql = "SELECT E_Prepayment_Acct FROM C_BP_Employee_Acct WHERE C_BPartner_ID=? AND C_AcctSchema_ID=?";
+		//  Get Acct
+		int Account_ID = 0;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = DB.prepareStatement(sql, null);
+			pstmt.setInt (1, getC_BPartner_ID());
+			pstmt.setInt (2, as.getC_AcctSchema_ID());
+			rs = pstmt.executeQuery();
+			if (rs.next())
+				Account_ID = rs.getInt(1);
+		}
+		catch (SQLException e) {
+			log.log(Level.SEVERE, "Error - SQL=" + sql, e);
+			return 0;
+		}
+		finally {
+			DB.close(rs, pstmt);
+			rs = null; pstmt = null;
+		}
+		//	No account
+		if (Account_ID == 0) {
+			log.warning("NO account, Record=" + p_po.get_ID());
+			return 0;
+		}
+		return Account_ID;
+	}
 
 }
