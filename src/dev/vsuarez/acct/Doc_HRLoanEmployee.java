@@ -37,8 +37,6 @@ public class Doc_HRLoanEmployee extends Doc {
 	/** Document Type Loan **/
 	public static final String	DOCTYPE_Loan = "PLO";
 	
-	
-
 	/**
 	 * @param as
 	 * @param clazz
@@ -121,6 +119,11 @@ public class Doc_HRLoanEmployee extends Doc {
 		return acct;
 	}	//	getAccountBP
 
+	/**
+	 * Get Valid Combination for E_Prepayment_Acct of Employee
+	 * @param as
+	 * @return
+	 */
 	public int getValidCombination_ID(MAcctSchema as) {
 		String sql = "SELECT E_Prepayment_Acct FROM C_BP_Employee_Acct WHERE C_BPartner_ID=? AND C_AcctSchema_ID=?";
 		//  Get Acct
@@ -149,6 +152,16 @@ public class Doc_HRLoanEmployee extends Doc {
 			return 0;
 		}
 		return Account_ID;
+	}
+	
+	@Override
+	public boolean isConvertible (MAcctSchema acctSchema) {
+		if (m_loan.getC_Currency_ID() != acctSchema.getC_Currency_ID()) {
+			if (m_loan.isOverrideCurrencyRate()) {
+				return true;
+			}
+		}
+		return super.isConvertible(acctSchema);
 	}
 
 }

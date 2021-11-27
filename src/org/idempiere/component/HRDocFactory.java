@@ -67,7 +67,7 @@ public class HRDocFactory implements IDocFactory {
 		
 		if (tableName.equals(I_HR_Process.Table_Name)) {
 			return new Doc_HRProcess(as, rs, trxName);
-			}
+		}
 		if(tableName.equals(I_HR_Loan.Table_Name)) {
 			return new Doc_HRLoanEmployee(as, rs, trxName);
 		}
