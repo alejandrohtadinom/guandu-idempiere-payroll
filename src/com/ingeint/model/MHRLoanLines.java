@@ -3,8 +3,6 @@ package com.ingeint.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
-import org.compiere.model.MOrder;
-
 public class MHRLoanLines extends X_HR_LoanLines {
 	
 	/**

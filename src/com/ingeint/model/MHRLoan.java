@@ -2,6 +2,7 @@ package com.ingeint.model;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -90,7 +91,7 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 		
 	public static void createLoanLines(MHRLoan loan) {
 		//Generate Lines
-		BigDecimal feeAmt = loan.getAmt().divide(BigDecimal.valueOf(loan.getFeeNumbers()), 2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal feeAmt = loan.getAmt().divide(BigDecimal.valueOf(loan.getFeeNumbers()), 2, RoundingMode.HALF_UP);
 	    Date StartDate=new Date(loan.getDateStart().getTime());
 		
 		for (int i=1; i <= loan.getFeeNumbers(); i= i+1) {
@@ -270,12 +271,6 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 
 	@Override
 	public int getDoc_User_ID() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getC_Currency_ID() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

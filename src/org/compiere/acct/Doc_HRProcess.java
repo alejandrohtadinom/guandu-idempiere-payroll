@@ -16,6 +16,7 @@
 package org.compiere.acct;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
@@ -114,7 +115,7 @@ public class Doc_HRProcess extends Doc
 			int HR_Concept_ID = line.getHR_Concept_ID();
 			BigDecimal sumAmount = line.getAmount();
 			// round amount according to currency
-			sumAmount = sumAmount.setScale(as.getStdPrecision(), BigDecimal.ROUND_HALF_UP);
+			sumAmount = sumAmount.setScale(as.getStdPrecision(), RoundingMode.HALF_UP);
 			String AccountSign = line.getAccountSign();
 			boolean isBalancing = isBalancing(as.getC_AcctSchema_ID(), HR_Concept_ID);
 			int AD_OrgTrx_ID = line.getAD_Org_ID();
@@ -179,7 +180,7 @@ public class Doc_HRProcess extends Doc
 		{
 			int C_Charge_ID = process.getHR_Payroll().getC_Charge_ID();
 			if (C_Charge_ID > 0) {
-				MAccount acct = MCharge.getAccount(C_Charge_ID, as, totalamt);
+				MAccount acct = MCharge.getAccount(C_Charge_ID, as);
 				FactLine regTotal = null;
 				if(totalamt.signum() > 0)
 					regTotal = fact.createLine(null, acct ,as.getC_Currency_ID(), null, totalamt);
