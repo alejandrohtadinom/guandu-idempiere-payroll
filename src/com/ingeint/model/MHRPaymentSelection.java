@@ -16,6 +16,7 @@ import org.compiere.model.Query;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
+import org.compiere.util.Env;
 import org.compiere.util.Util;
 
 import com.ingeint.utils.PayrollUtils;
@@ -148,12 +149,17 @@ public class MHRPaymentSelection extends X_HR_PaymentSelection implements DocAct
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
 
-		// Generate Payments
+		if (!getING_PaymentSelectionType().isGroupedPayment()) {
+			// Generate Payments
+			MHRPaymentSelectionLine[] plines = getLines();
 
-		MHRPaymentSelectionLine[] plines = getLines();
+			for (MHRPaymentSelectionLine pline : plines) {
+				PayrollUtils.createPayment(pline);
+			}
+		} else {
 
-		for (MHRPaymentSelectionLine pline : plines) {
-			PayrollUtils.createPayment(pline);
+			PayrollUtils.CreatePayment(this);
+
 		}
 		setProcessed(true);
 		setDocAction(DOCACTION_Close);
@@ -209,6 +215,9 @@ public class MHRPaymentSelection extends X_HR_PaymentSelection implements DocAct
 				pline.saveEx();
 				payment.deleteEx(true);
 			} else {
+				if (payment.getDocStatus().equals(DOCSTATUS_Reversed))
+					continue;
+				
 				payment.reverseCorrectIt();
 				payment.saveEx();
 			}
@@ -270,5 +279,21 @@ public class MHRPaymentSelection extends X_HR_PaymentSelection implements DocAct
 	public BigDecimal getApprovalAmt() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public BigDecimal getTotalPayAmt() {
+
+		BigDecimal payAmt = Env.ZERO;
+
+		MHRPaymentSelectionLine[] lines = getLines();
+
+		for (MHRPaymentSelectionLine line : lines) {
+
+			payAmt = payAmt.add(line.getPayAmt());
+
+		}
+
+		return payAmt;
+
 	}
 }

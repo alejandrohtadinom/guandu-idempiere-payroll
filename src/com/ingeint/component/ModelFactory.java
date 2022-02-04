@@ -28,6 +28,7 @@ package com.ingeint.component;
 import org.eevolution.model.MHRAttribute;
 import org.eevolution.model.MHRConcept;
 import org.eevolution.model.MHRConceptCategory;
+import org.eevolution.model.MHRContract;
 import org.eevolution.model.MHRDepartment;
 import org.eevolution.model.MHREmployee;
 import org.eevolution.model.MHRMovement;
@@ -36,7 +37,6 @@ import org.eevolution.model.MHRPayrollConcept;
 import org.eevolution.model.MHRPeriod;
 import org.eevolution.model.MHRProcess;
 import org.eevolution.model.MHRYear;
-import org.eevolution.model.X_HR_Contract;
 
 import com.ingeint.base.CustomModelFactory;
 import com.ingeint.model.MHRLoan;
@@ -45,7 +45,14 @@ import com.ingeint.model.MHRPaymentSelection;
 import com.ingeint.model.MHRPaymentSelectionLine;
 import com.ingeint.model.MHRSectorCode;
 import com.ingeint.model.MHR_Basic_Factor_Type;
+import com.ingeint.model.MHR_Employee_Incidents;
 import com.ingeint.model.MHR_GAP;
+import com.ingeint.model.MHR_Shift_Incident;
+import com.ingeint.model.MHR_Shift_Incident_Line;
+import com.ingeint.model.MHR_Shifts;
+import com.ingeint.model.MHR_Shifts_Line;
+import com.ingeint.model.MINGMovement;
+import com.ingeint.model.MPaymentSelectionType;
 
 
 /**
@@ -73,7 +80,14 @@ public class ModelFactory extends CustomModelFactory {
 		registerTableModel(MHRLoanLines.Table_Name, MHRLoanLines.class);
 		registerTableModel(MHRPaymentSelection.Table_Name, MHRPaymentSelection.class);
 		registerTableModel(MHRPaymentSelectionLine.Table_Name, MHRPaymentSelectionLine.class);
-		registerTableModel (MHRSectorCode.Table_Name, MHRSectorCode.class);
-		registerTableModel(X_HR_Contract.Table_Name, X_HR_Contract.class);
+		registerTableModel(MHRSectorCode.Table_Name, MHRSectorCode.class);
+		registerTableModel(MHRContract.Table_Name, MHRContract.class);
+		registerTableModel(MPaymentSelectionType.Table_Name, MPaymentSelectionType.class);
+		registerTableModel(MHR_Shifts.Table_Name, MHR_Shifts.class);
+		registerTableModel(MHR_Shifts_Line.Table_Name, MHR_Shifts_Line.class);
+		registerTableModel(MHR_Employee_Incidents.Table_Name, MHR_Employee_Incidents.class);
+		registerTableModel(MHR_Shift_Incident.Table_Name, MHR_Shift_Incident.class);
+		registerTableModel(MHR_Shift_Incident_Line.Table_Name, MHR_Shift_Incident_Line.class);
+		registerTableModel(MINGMovement.Table_Name, MINGMovement.class);
 	}
 }

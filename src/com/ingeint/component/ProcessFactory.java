@@ -1,13 +1,5 @@
 package com.ingeint.component;
 
-import org.eevolution.process.HRCreateConcept;
-import org.eevolution.process.HRCreatePeriods;
-import com.ingeint.process.RecalculateLoan;
-
-import dev.vsuarez.process.HR_ConceptTest;
-
-import com.ingeint.process.PaymentSelection;
-
 import com.ingeint.base.CustomProcessFactory;
 
 public class ProcessFactory extends CustomProcessFactory{
@@ -22,10 +14,16 @@ public class ProcessFactory extends CustomProcessFactory{
 	 */
 	@Override
 	protected void initialize() {
-		registerProcess(HRCreatePeriods.class);
-		registerProcess(HRCreateConcept.class);
-		registerProcess(RecalculateLoan.class);
-		registerProcess(PaymentSelection.class);
-		registerProcess(HR_ConceptTest.class);
+		registerProcess(org.eevolution.process.HRCreatePeriods.class);
+
+		registerProcess(com.ingeint.process.RecalculateLoan.class);
+		registerProcess(com.ingeint.process.PaymentSelection.class);
+		registerProcess(com.ingeint.process.GenerateLinesIncidents.class);
+		registerProcess(com.ingeint.process.CreateAttributeFromShifts.class);
+		registerProcess(org.eevolution.process.HRCreatePeriods.class);
+		registerProcess(com.ingeint.process.CreateXML.class);
+		registerProcess(org.eevolution.process.PayrollViaEMail.class);
+		registerProcess(org.eevolution.process.HRCreateConcept.class);
+		registerProcess(dev.vsuarez.process.HR_ConceptTest.class);
 	}
 }
