@@ -22,6 +22,8 @@ import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
+import org.eevolution.model.I_HR_Concept;
+import org.eevolution.model.I_HR_Process;
 
 /** Generated Model for ING_HRMovement
  *  @author iDempiere (generated) 
@@ -32,7 +34,7 @@ public class X_ING_HRMovement extends PO implements I_ING_HRMovement, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20210929L;
+	private static final long serialVersionUID = 20220217L;
 
     /** Standard Constructor */
     public X_ING_HRMovement (Properties ctx, int ING_HRMovement_ID, String trxName)
@@ -202,6 +204,46 @@ public class X_ING_HRMovement extends PO implements I_ING_HRMovement, I_Persiste
 		return ii.intValue();
 	}
 
+	/** Set Converted Amount.
+		@param ConvertedAmt 
+		Converted Amount
+	  */
+	public void setConvertedAmt (BigDecimal ConvertedAmt)
+	{
+		set_Value (COLUMNNAME_ConvertedAmt, ConvertedAmt);
+	}
+
+	/** Get Converted Amount.
+		@return Converted Amount
+	  */
+	public BigDecimal getConvertedAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_ConvertedAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** Set Rate.
+		@param CurrencyRate 
+		Currency Conversion Rate
+	  */
+	public void setCurrencyRate (BigDecimal CurrencyRate)
+	{
+		set_Value (COLUMNNAME_CurrencyRate, CurrencyRate);
+	}
+
+	/** Get Rate.
+		@return Currency Conversion Rate
+	  */
+	public BigDecimal getCurrencyRate () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_CurrencyRate);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
 	/** Set Description.
 		@param Description 
 		Optional short description of the record
@@ -236,9 +278,9 @@ public class X_ING_HRMovement extends PO implements I_ING_HRMovement, I_Persiste
 		return (String)get_Value(COLUMNNAME_Help);
 	}
 
-	public org.eevolution.model.I_HR_Concept getHR_Concept() throws RuntimeException
+	public I_HR_Concept getHR_Concept() throws RuntimeException
     {
-		return (org.eevolution.model.I_HR_Concept)MTable.get(getCtx(), org.eevolution.model.I_HR_Concept.Table_Name)
+		return (I_HR_Concept)MTable.get(getCtx(), I_HR_Concept.Table_Name)
 			.getPO(getHR_Concept_ID(), get_TrxName());	}
 
 	/** Set Payroll Concept.
@@ -261,9 +303,9 @@ public class X_ING_HRMovement extends PO implements I_ING_HRMovement, I_Persiste
 		return ii.intValue();
 	}
 
-	public org.eevolution.model.I_HR_Process getHR_Process() throws RuntimeException
+	public I_HR_Process getHR_Process() throws RuntimeException
     {
-		return (org.eevolution.model.I_HR_Process)MTable.get(getCtx(), org.eevolution.model.I_HR_Process.Table_Name)
+		return (I_HR_Process)MTable.get(getCtx(), I_HR_Process.Table_Name)
 			.getPO(getHR_Process_ID(), get_TrxName());	}
 
 	/** Set Payroll Process.

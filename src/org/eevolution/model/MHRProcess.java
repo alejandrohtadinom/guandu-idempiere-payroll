@@ -243,7 +243,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		try {
 			
 			if (get_ValueAsInt("C_Conversion_Rate_ID") > 0) {
-				MConversionRate cr = new MConversionRate(getCtx(), get_ValueAsInt("C_Conversion_Rate_ID"), get_TrxName());			
+				MConversionRate cr = new MConversionRate(getCtx(), get_ValueAsInt("C_Conversion_Rate_ID"), get_TrxName());
 				conversionRate = cr.getMultiplyRate();
 			}
 			createMovements();

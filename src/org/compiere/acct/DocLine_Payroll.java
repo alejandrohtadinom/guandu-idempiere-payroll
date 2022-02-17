@@ -66,7 +66,9 @@ public class DocLine_Payroll extends DocLine {
 		m_User1_ID = line.getUser1_ID();
 		m_C_Activity_ID = line.getC_Activity_ID();
 		m_Amount = line.getAmount();
-		m_CumulatedAmt = new BigDecimal(line.get_Value("ConvertedAmt").toString());
+		BigDecimal m_CumulatedAmt = BigDecimal.ZERO;
+		if(line.get_Value("ConvertedAmt") != null)
+			m_CumulatedAmt = (BigDecimal) line.get_Value("ConvertedAmt");
 		m_C_Currency_ID = line.getC_Currency_ID();
 		m_C_Conversion_Rate_ID = line.getC_Conversion_Rate_ID();
 		setAmount(m_Amount);

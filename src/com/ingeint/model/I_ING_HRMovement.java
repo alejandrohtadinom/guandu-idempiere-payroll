@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
+import org.eevolution.model.I_HR_Concept;
+import org.eevolution.model.I_HR_Process;
 
 /** Generated Interface for ING_HRMovement
  *  @author iDempiere (generated) 
@@ -32,7 +34,7 @@ public interface I_ING_HRMovement
     /** TableName=ING_HRMovement */
     public static final String Table_Name = "ING_HRMovement";
 
-    /** AD_Table_ID=1000066 */
+    /** AD_Table_ID=1000109 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -135,6 +137,19 @@ public interface I_ING_HRMovement
 
 	public org.compiere.model.I_C_Currency getC_Currency() throws RuntimeException;
 
+    /** Column name ConvertedAmt */
+    public static final String COLUMNNAME_ConvertedAmt = "ConvertedAmt";
+
+	/** Set Converted Amount.
+	  * Converted Amount
+	  */
+	public void setConvertedAmt (BigDecimal ConvertedAmt);
+
+	/** Get Converted Amount.
+	  * Converted Amount
+	  */
+	public BigDecimal getConvertedAmt();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -150,6 +165,19 @@ public interface I_ING_HRMovement
 	  * User who created this records
 	  */
 	public int getCreatedBy();
+
+    /** Column name CurrencyRate */
+    public static final String COLUMNNAME_CurrencyRate = "CurrencyRate";
+
+	/** Set Rate.
+	  * Currency Conversion Rate
+	  */
+	public void setCurrencyRate (BigDecimal CurrencyRate);
+
+	/** Get Rate.
+	  * Currency Conversion Rate
+	  */
+	public BigDecimal getCurrencyRate();
 
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
@@ -186,7 +214,7 @@ public interface I_ING_HRMovement
 	/** Get Payroll Concept	  */
 	public int getHR_Concept_ID();
 
-	public org.eevolution.model.I_HR_Concept getHR_Concept() throws RuntimeException;
+	public I_HR_Concept getHR_Concept() throws RuntimeException;
 
     /** Column name HR_Process_ID */
     public static final String COLUMNNAME_HR_Process_ID = "HR_Process_ID";
@@ -197,7 +225,7 @@ public interface I_ING_HRMovement
 	/** Get Payroll Process	  */
 	public int getHR_Process_ID();
 
-	public org.eevolution.model.I_HR_Process getHR_Process() throws RuntimeException;
+	public I_HR_Process getHR_Process() throws RuntimeException;
 
     /** Column name ING_HRMovement_ID */
     public static final String COLUMNNAME_ING_HRMovement_ID = "ING_HRMovement_ID";
