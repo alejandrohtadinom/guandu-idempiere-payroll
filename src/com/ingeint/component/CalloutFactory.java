@@ -54,8 +54,6 @@ public class CalloutFactory extends CustomCalloutFactory {
 		registerCallout(MHR_Shifts_Line.Table_Name, MHR_Shifts_Line.COLUMNNAME_HR_Concept_ID, SetColumnType.class);
 		registerCallout(MHR_Employee_Incidents.Table_Name, MHR_Employee_Incidents.COLUMNNAME_HR_Concept_ID, SetColumnTypeIncident.class);
 		registerCallout(MHR_Shift_Incident_Line.Table_Name, MHR_Shift_Incident_Line.COLUMNNAME_HR_Shifts_ID, SetEmployeeIncidents.class);
-
-
 	}
 
 }

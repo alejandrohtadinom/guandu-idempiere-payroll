@@ -54,7 +54,7 @@ public class Doc_HRProcess extends Doc {
 
 	/** Process Payroll **/
 	public static final String DOCTYPE_Payroll = "HRP";
-	private BigDecimal ConversionRate = Env.ZERO;
+//	private BigDecimal ConversionRate = Env.ZERO;
 
 	/**
 	 * Constructor
@@ -125,7 +125,7 @@ public class Doc_HRProcess extends Doc {
 	public ArrayList<Fact> createFacts(MAcctSchema as) {
 		Fact fact = new Fact(this, as, Fact.POST_Actual);
 
-		int baseCurrencyId = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
+//		int baseCurrencyId = Env.getContextAsInt(getCtx(), "$C_Currency_ID");
 
 		BigDecimal totalamt = Env.ZERO;
 		for (int i = 0; i < p_lines.length; i++) {
@@ -135,11 +135,11 @@ public class Doc_HRProcess extends Doc {
 			BigDecimal sumAmount = line.getAmount();
 			// round amount according to currency
 			sumAmount = sumAmount.setScale(as.getStdPrecision(), RoundingMode.HALF_UP);
-			if (line.getC_Currency_ID() > 0)
-				baseCurrencyId = line.getC_Currency_ID();
-			if (baseCurrencyId != as.getC_Currency_ID()) {
-				sumAmount = line.getM_CumulatedAmt();
-			}
+//			if(line.getC_Currency_ID() > 0)
+//				baseCurrencyId = line.getC_Currency_ID(); 
+//			if (baseCurrencyId != as.getC_Currency_ID()) {
+//				sumAmount = line.getM_CumulatedAmt();
+//			}
 			String AccountSign = line.getAccountSign();
 			boolean isBalancing = isBalancing(as.getC_AcctSchema_ID(), HR_Concept_ID);
 			int AD_OrgTrx_ID = line.getAD_Org_ID();
@@ -153,7 +153,7 @@ public class Doc_HRProcess extends Doc {
 				if (isBalancing) {
 					MAccount accountBPD = MAccount.get(getCtx(), getAccountBalancingBPG(as.getC_AcctSchema_ID(),
 							HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Debit, C_BP_Group_ID));
-					FactLine debit = fact.createLine(docLine, accountBPD, as.getC_Currency_ID(), sumAmount, null);
+					FactLine debit = fact.createLine(docLine, accountBPD, getC_Currency_ID(), sumAmount, null);
 					if (debit == null)
 						continue;
 					debit.setAD_OrgTrx_ID(AD_OrgTrx_ID);
@@ -163,7 +163,7 @@ public class Doc_HRProcess extends Doc {
 					debit.set_ValueOfColumn("C_BP_Group_ID", C_BP_Group_ID);
 					MAccount accountBPC = MAccount.get(getCtx(), this.getAccountBalancingBPG(as.getC_AcctSchema_ID(),
 							HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Credit, C_BP_Group_ID));
-					FactLine credit = fact.createLine(docLine, accountBPC, as.getC_Currency_ID(), null, sumAmount);
+					FactLine credit = fact.createLine(docLine, accountBPC, getC_Currency_ID(), null, sumAmount);
 					if (credit == null)
 						continue;
 					credit.setAD_OrgTrx_ID(AD_OrgTrx_ID);
@@ -175,7 +175,7 @@ public class Doc_HRProcess extends Doc {
 					if (MHRConcept.ACCOUNTSIGN_Debit.equals(AccountSign)) {
 						MAccount accountBPD = MAccount.get(getCtx(), getAccountBalancingBPG(as.getC_AcctSchema_ID(),
 								HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Debit, C_BP_Group_ID));
-						FactLine debit = fact.createLine(docLine, accountBPD, as.getC_Currency_ID(), sumAmount, null);
+						FactLine debit = fact.createLine(docLine, accountBPD, getC_Currency_ID(), sumAmount, null);
 						if (debit == null)
 							continue;
 						debit.setAD_OrgTrx_ID(AD_OrgTrx_ID);
@@ -188,7 +188,7 @@ public class Doc_HRProcess extends Doc {
 					} else if (MHRConcept.ACCOUNTSIGN_Credit.equals(AccountSign)) {
 						MAccount accountBPC = MAccount.get(getCtx(), this.getAccountBalancingBPG(
 								as.getC_AcctSchema_ID(), HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Credit, C_BP_Group_ID));
-						FactLine credit = fact.createLine(docLine, accountBPC, as.getC_Currency_ID(), null, sumAmount);
+						FactLine credit = fact.createLine(docLine, accountBPC, getC_Currency_ID(), null, sumAmount);
 						if (credit == null)
 							continue;
 						credit.setAD_OrgTrx_ID(AD_OrgTrx_ID);
@@ -196,6 +196,7 @@ public class Doc_HRProcess extends Doc {
 						credit.setUser1_ID(User1_ID);
 						credit.setC_BPartner_ID(C_BPartner_ID);
 						credit.set_ValueOfColumn("C_BP_Group_ID", C_BP_Group_ID);
+						
 						sumAmount = sumAmount.abs().negate();
 					}
 					totalamt = totalamt.add(sumAmount);
@@ -209,9 +210,9 @@ public class Doc_HRProcess extends Doc {
 				MAccount acct = MCharge.getAccount(C_Charge_ID, as);
 				FactLine regTotal = null;
 				if (totalamt.signum() > 0)
-					regTotal = fact.createLine(null, acct, as.getC_Currency_ID(), null, totalamt);
+					regTotal = fact.createLine(null, acct, getC_Currency_ID(), null, totalamt);
 				else
-					regTotal = fact.createLine(null, acct, as.getC_Currency_ID(), totalamt, null);
+					regTotal = fact.createLine(null, acct, getC_Currency_ID(), totalamt, null);
 				regTotal.setAD_Org_ID(getAD_Org_ID());
 			}
 		}
@@ -229,6 +230,7 @@ public class Doc_HRProcess extends Doc {
 	 * @param AccountSign   Debit or Credit only
 	 * @return Account ID
 	 */
+	@SuppressWarnings("unused")
 	private int getAccountBalancing(int AcctSchema_ID, int HR_Concept_ID, String AccountSign) {
 		String field;
 		if (MElementValue.ACCOUNTSIGN_Debit.equals(AccountSign)) {
@@ -299,6 +301,23 @@ public class Doc_HRProcess extends Doc {
 			invAmt = invAmt.setScale(stdPrecision, RoundingMode.HALF_UP);
 
 		return invAmt;
+	}
+	
+	@Override
+	public BigDecimal getCurrencyRate() {
+		MHRProcess hrProcess = (MHRProcess) getPO();
+		if(!hrProcess.get_ValueAsBoolean("IsOverrideCurrencyRate"))
+			return null;
+		
+		BigDecimal currencyRate = null; 
+		if(process.get_Value("CurrencyRate") != null)
+			currencyRate = (BigDecimal) process.get_Value("CurrencyRate");
+		if(currencyRate == null || currencyRate.signum() <=0) {
+			if(hrProcess.get_Value("DivideRate") != null)
+				currencyRate = (BigDecimal) hrProcess.get_Value("DivideRate");
+		}
+		
+		return currencyRate;
 	}
 	
 } // Doc_Payroll

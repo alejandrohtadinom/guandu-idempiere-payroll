@@ -22,6 +22,8 @@ import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_BP_BankAccount;
+import org.compiere.model.MAcctSchema;
+import org.compiere.model.MClientInfo;
 import org.compiere.model.MConversionRate;
 import org.compiere.model.MCurrency;
 import org.compiere.model.Query;
@@ -147,28 +149,20 @@ public class MHRMovement extends X_HR_Movement
 	 * @param columnType column type (see MHRConcept.COLUMNTYPE_*)
 	 * @param value
 	 */
-	public void setColumnValue(Object value)
-	{
-		try
-		{
+	public void setColumnValue(Object value) {
+		if(value == null)
+			return;
+		try {
 			final String columnType = getColumnType();
-			if (MHRConcept.COLUMNTYPE_Quantity.equals(columnType))
-			{
+			if (MHRConcept.COLUMNTYPE_Quantity.equals(columnType)) {
 				BigDecimal qty = new BigDecimal(value.toString()); 
 				setQty(qty);
 				setAmount(Env.ZERO);
-			} 
-			else if(MHRConcept.COLUMNTYPE_Amount.equals(columnType))
-			{
-					int precisionCu = MCurrency.getStdPrecision(getCtx(), Env.getContextAsInt(p_ctx, "$C_Currency_ID"));				
-					MHRProcess Process = new MHRProcess(p_ctx, getHR_Process_ID(), get_TrxName());
-					MConversionRate cr = new MConversionRate(getCtx(), Process.get_ValueAsInt("C_Conversion_Rate_ID"), get_TrxName());			
-					MHRPayroll pa = new MHRPayroll(p_ctx, Process.getHR_Payroll_ID(), get_TrxName());
-					int precision = Integer.parseInt(pa.get_Value("StdPrecision").toString());
-					BigDecimal amount = new BigDecimal(value.toString()).setScale(precision, RoundingMode.HALF_UP);
-					BigDecimal convAmt = new BigDecimal(value.toString()).multiply(cr.getMultiplyRate()).setScale(precisionCu, RoundingMode.HALF_UP);
-				
-				set_ValueOfColumn("ConvertedAmt", convAmt);
+			} else if(MHRConcept.COLUMNTYPE_Amount.equals(columnType)) {
+				MHRProcess process = new MHRProcess(p_ctx, getHR_Process_ID(), get_TrxName());
+				MHRPayroll pa = new MHRPayroll(p_ctx, process.getHR_Payroll_ID(), get_TrxName());
+				int precision = pa.get_ValueAsInt("StdPrecision");
+				BigDecimal amount = new BigDecimal(value.toString()).setScale(precision, RoundingMode.HALF_UP);
 				setAmount(amount);
 				setQty(Env.ZERO);
 			} 
@@ -217,6 +211,53 @@ public class MHRMovement extends X_HR_Movement
 			setC_BP_BankAccount_ID(C_BP_BankAccount_ID);
 			
 		setAccountSign(getHR_Concept().getAccountSign());
+
 		return true;
-	}       
+	}
+	
+	/**
+	 * Get Converted Amount
+	 * 
+	 * @param BigDecimal amount
+	 * @return Converted Amount
+	 */
+	public BigDecimal getConvertedAmount(BigDecimal amount) {
+		MHRProcess process = new MHRProcess(p_ctx, getHR_Process_ID(), get_TrxName());
+		MHRPayroll pa = new MHRPayroll(p_ctx, process.getHR_Payroll_ID(), get_TrxName());
+		int paCurrencyID = pa.get_ValueAsInt("C_Currency_ID");
+		int prCurrencyID = process.getC_Currency_ID();
+		BigDecimal convAmt = BigDecimal.ZERO;
+		if(paCurrencyID <= 0 || paCurrencyID == prCurrencyID)
+			convAmt = amount;
+		else {
+			BigDecimal currencyRate = BigDecimal.ZERO;
+			if(process.get_Value("CurrencyRate") != null)
+				currencyRate = (BigDecimal) process.get_Value("CurrencyRate");
+			if(!process.get_ValueAsBoolean("IsOverrideCurrencyRate") || currencyRate.signum() <= 0) {
+				convAmt = MConversionRate.convert(getCtx(), amount, paCurrencyID, prCurrencyID, process.getDateAcct(), 
+						process.get_ValueAsInt("C_ConversionType_ID"), getAD_Client_ID(), getAD_Org_ID());
+			} else {
+				MClientInfo info = MClientInfo.get(getAD_Client_ID());
+				MAcctSchema invAcctShema = MAcctSchema.get(info.getC_AcctSchema1_ID());
+				BigDecimal divideRate = BigDecimal.ZERO;
+				if(process.get_Value("DivideRate") != null)
+					divideRate = (BigDecimal) process.get_Value("DivideRate");
+				if(divideRate.signum() > 0) {
+					if(process.getC_Currency_ID() == invAcctShema.getC_Currency_ID())
+						convAmt = amount.divide(divideRate, MCurrency.getStdPrecision(getCtx(), prCurrencyID), RoundingMode.HALF_UP);
+					else
+						convAmt = amount.multiply(divideRate)
+							.setScale(MCurrency.getStdPrecision(getCtx(), prCurrencyID), RoundingMode.HALF_UP);
+				} else
+					convAmt = amount.multiply(currencyRate)
+						.setScale(MCurrency.getStdPrecision(getCtx(), prCurrencyID), RoundingMode.HALF_UP);
+			}
+		}
+		return convAmt;
+	}
+	
+	@Override
+	public void setAmount(BigDecimal amount) {
+		super.setAmount(getConvertedAmount(amount));
+	}
 }	//	HRMovement

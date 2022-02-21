@@ -241,11 +241,6 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		}
 
 		try {
-			
-			if (get_ValueAsInt("C_Conversion_Rate_ID") > 0) {
-				MConversionRate cr = new MConversionRate(getCtx(), get_ValueAsInt("C_Conversion_Rate_ID"), get_TrxName());
-				conversionRate = cr.getMultiplyRate();
-			}
 			createMovements();
 			MHRPayroll payroll = new MHRPayroll(getCtx(), getHR_Payroll_ID(), get_TrxName());
 			if (payroll.get_ValueAsBoolean("IsCummulatedAccounting"))
@@ -476,7 +471,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 	 * 
 	 */
 	public int getC_Currency_ID() {
-		return 0;
+		return get_ValueAsInt("C_Currency_ID");
 	}
 
 	public String getProcessMsg() {
@@ -760,7 +755,6 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 					get_TrxName());
 
 			while (rs.next()) {
-
 				MINGMovement move = new MINGMovement(getCtx(), 0, get_TrxName());
 				move.setAD_Org_ID(rs.getInt(2));
 				move.setHR_Process_ID(rs.getInt(3));
@@ -771,7 +765,16 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 				move.setC_Activity_ID(rs.getInt(8));
 				move.setC_Conversion_Rate_ID(rs.getInt(10));
 				move.setC_Currency_ID(rs.getInt(9));
-				move.set_ValueOfColumn("ConvertedAmt", rs.getBigDecimal(11));
+				move.setConvertedAmt(rs.getBigDecimal(11));
+				BigDecimal conversionRate = BigDecimal.ZERO;
+				if(get_ValueAsBoolean("IsOverrideCurrencyRate") && get_Value("CurrencyRate") != null)
+					conversionRate = (BigDecimal) get_Value("CurrencyRate");
+				else {
+					MHRPayroll payroll = (MHRPayroll) getHR_Payroll();
+					conversionRate = MConversionRate.getRate(payroll.get_ValueAsInt("C_Currency_ID"), getC_Currency_ID(), 
+							getDateAcct(), get_ValueAsInt("C_ConversionRate_ID"), getAD_Client_ID(), getAD_Org_ID());
+				}
+				move.setCurrencyRate(conversionRate);
 				move.saveEx();
 			}
 		} finally {
