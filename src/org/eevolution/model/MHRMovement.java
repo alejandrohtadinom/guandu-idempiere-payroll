@@ -219,22 +219,24 @@ public class MHRMovement extends X_HR_Movement
 	 * Get Converted Amount
 	 * 
 	 * @param BigDecimal amount
+	 * @param int Currency
 	 * @return Converted Amount
 	 */
-	public BigDecimal getConvertedAmount(BigDecimal amount) {
+	public BigDecimal getConvertedAmount(BigDecimal amount, int from_C_Currency_ID) {
 		MHRProcess process = new MHRProcess(p_ctx, getHR_Process_ID(), get_TrxName());
 		MHRPayroll pa = new MHRPayroll(p_ctx, process.getHR_Payroll_ID(), get_TrxName());
-		int paCurrencyID = pa.get_ValueAsInt("C_Currency_ID");
+		if(from_C_Currency_ID <=0)
+			from_C_Currency_ID = pa.get_ValueAsInt("C_Currency_ID");
 		int prCurrencyID = process.getC_Currency_ID();
 		BigDecimal convAmt = BigDecimal.ZERO;
-		if(paCurrencyID <= 0 || paCurrencyID == prCurrencyID)
+		if(from_C_Currency_ID <= 0 || from_C_Currency_ID == prCurrencyID)
 			convAmt = amount;
 		else {
 			BigDecimal currencyRate = BigDecimal.ZERO;
 			if(process.get_Value("CurrencyRate") != null)
 				currencyRate = (BigDecimal) process.get_Value("CurrencyRate");
 			if(!process.get_ValueAsBoolean("IsOverrideCurrencyRate") || currencyRate.signum() <= 0) {
-				convAmt = MConversionRate.convert(getCtx(), amount, paCurrencyID, prCurrencyID, process.getDateAcct(), 
+				convAmt = MConversionRate.convert(getCtx(), amount, from_C_Currency_ID, prCurrencyID, process.getDateAcct(), 
 						process.get_ValueAsInt("C_ConversionType_ID"), getAD_Client_ID(), getAD_Org_ID());
 			} else {
 				MClientInfo info = MClientInfo.get(getAD_Client_ID());
@@ -243,7 +245,7 @@ public class MHRMovement extends X_HR_Movement
 				if(process.get_Value("DivideRate") != null)
 					divideRate = (BigDecimal) process.get_Value("DivideRate");
 				if(divideRate.signum() > 0) {
-					if(process.getC_Currency_ID() == invAcctShema.getC_Currency_ID())
+					if(prCurrencyID == invAcctShema.getC_Currency_ID())
 						convAmt = amount.divide(divideRate, MCurrency.getStdPrecision(getCtx(), prCurrencyID), RoundingMode.HALF_UP);
 					else
 						convAmt = amount.multiply(divideRate)
@@ -256,8 +258,28 @@ public class MHRMovement extends X_HR_Movement
 		return convAmt;
 	}
 	
+	int m_C_Currency_ID = 0;
+	
+	/**
+	 * Currency of Attribute
+	 * @return the m_C_Currency_ID
+	 */
+	public int getC_Currency_ID() {
+		return m_C_Currency_ID;
+	}
+
+	/**
+	 * Currency of Attribute
+	 * @param m_C_Currency_ID the m_C_Currency_ID to set
+	 */
+	public void setC_Currency_ID(int C_Currency_ID) {
+		this.m_C_Currency_ID = C_Currency_ID;
+	}
+
 	@Override
 	public void setAmount(BigDecimal amount) {
-		super.setAmount(getConvertedAmount(amount));
+		super.setAmount(getConvertedAmount(amount, getC_Currency_ID()));
 	}
+	
+	
 }	//	HRMovement

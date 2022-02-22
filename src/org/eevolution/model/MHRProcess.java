@@ -991,6 +991,8 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		movement.setC_Activity_ID(m_employee.getC_Activity_ID());
 		movement.setUser1_ID(m_employee.get_ValueAsInt("User1_ID"));
 		movement.set_ValueOfColumn("EmployeeGroup", partner.get_Value("EmployeeGroup"));
+		if(att.getColumnType().equalsIgnoreCase(MHRAttribute.COLUMNTYPE_Amount))
+			movement.setC_Currency_ID(att.get_ValueAsInt("C_Currency_ID"));
 		if (MHRConcept.TYPE_RuleEngine.equals(concept.getType())) {
 			log.info("Executing rule for concept " + concept.getValue());
 			movement.setAccountSign(concept.getAccountSign());
