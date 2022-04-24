@@ -2,11 +2,10 @@ package com.ingeint.process;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.adempiere.exceptions.AdempiereException;
-import  org.compiere.model.MSysConfig;
 import org.compiere.model.Query;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.DB;
@@ -17,7 +16,6 @@ import org.eevolution.model.MHRPayroll;
 import com.ingeint.base.CustomProcess;
 import com.ingeint.model.MHRPaymentSelection;
 import com.ingeint.model.MHRPaymentSelectionLine;
-import com.ingeint.model.MPaymentSelectionType;
 
 public class PaymentSelection extends CustomProcess {
 	
@@ -31,7 +29,7 @@ public class PaymentSelection extends CustomProcess {
 			if (para[i].getParameter() == null)
 				;
 			else if (name.equals("Percent"))
-				p_Percent = para[i].getParameterAsBigDecimal().divide(Env.ONEHUNDRED, 2, BigDecimal.ROUND_HALF_UP);
+				p_Percent = para[i].getParameterAsBigDecimal().divide(Env.ONEHUNDRED, 2, RoundingMode.HALF_UP);
 			else
 				log.log(Level.SEVERE, "Unknown Parameter: " + name);
 		}
