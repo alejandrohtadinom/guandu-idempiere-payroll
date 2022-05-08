@@ -60,11 +60,13 @@ import org.zkoss.zul.Center;
 import org.zkoss.zul.North;
 import org.zkoss.zul.South;
 
+import com.ingeint.base.CustomFormController;
+
 import ve.net.dcs.process.MHRProcess_ConceptTest;
 
 
 
-public class WConceptTest 
+public class WConceptTest extends CustomFormController
 implements IFormController,EventListener<Event>, WTableModelListener,  ValueChangeListener{
 	
 	private CustomForm form = new CustomForm();
@@ -81,20 +83,13 @@ implements IFormController,EventListener<Event>, WTableModelListener,  ValueChan
 	 */
 	 // 2014-08-19 Change IsSOTrx to "" to show only employee -- ocurieles 
 	  
-	public WConceptTest()
-	{
+	public WConceptTest() {
 		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "");   //  defaults to no
-		try
-		{
+		try {
 			m_AD_Client_ID = Env.getAD_Client_ID(Env.getCtx());
 			dynInit();
 			zkInit();
-
-
-			
-		}
-		catch(Exception e)
-		{
+		} catch(Exception e) {
 			log.log(Level.SEVERE, "", e);
 		}
 	}	//	init
@@ -536,6 +531,18 @@ implements IFormController,EventListener<Event>, WTableModelListener,  ValueChan
 			script = rule!=null?rule.getScript():"";
 		}
 		return script;
+	}
+
+	@Override
+	protected void buildForm() throws Exception {
+		Env.setContext(Env.getCtx(), form.getWindowNo(), "IsSOTrx", "");   //  defaults to no
+		try {
+			m_AD_Client_ID = Env.getAD_Client_ID(Env.getCtx());
+			dynInit();
+			zkInit();
+		} catch(Exception e) {
+			log.log(Level.SEVERE, "", e);
+		}
 	}
 
 }

@@ -9,10 +9,6 @@ public class HRZKFormFactory implements IFormFactory {
 
 	private final static CLogger log = CLogger.getCLogger(HRZKFormFactory.class);
 
-	public HRZKFormFactory() {
-
-	}
-
 	@Override
 	public ADForm newFormInstance(String formName) {
 		log.info("");
@@ -29,7 +25,7 @@ public class HRZKFormFactory implements IFormFactory {
 		}
 
 		try {
-			form = clazz.newInstance();
+			form = clazz.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			log.warning(String.format("Class cannot be instantiated for Form: %s", formName));
 			e.printStackTrace();

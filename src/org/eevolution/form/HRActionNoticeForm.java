@@ -35,7 +35,7 @@ import org.adempiere.webui.component.WListbox;
 import org.adempiere.webui.editor.WDateEditor;
 import org.adempiere.webui.editor.WNumberEditor;
 import org.adempiere.webui.editor.WStringEditor;
-import org.adempiere.webui.panel.ADForm;
+//import org.adempiere.webui.panel.ADForm;
 import org.adempiere.webui.panel.CustomForm;
 import org.adempiere.webui.panel.IFormController;
 import org.compiere.minigrid.ColumnInfo;
@@ -63,13 +63,15 @@ import org.zkoss.zul.Center;
 import org.zkoss.zul.North;
 import org.zkoss.zul.Space;
 
+import com.ingeint.base.CustomFormController;
+
 /**
  * Payroll Notice Form
  * 
  * @author Double Click Sistemas C.A. - http://dcs.net.ve
  * @author Saul Pina - spina@dcs.net.ve
  */
-public class HRActionNoticeForm implements IFormController, EventListener<Event> {
+public class HRActionNoticeForm extends CustomFormController implements IFormController, EventListener<Event> {
 
 	private CustomForm form;
 	private Borderlayout mainLayout;
@@ -115,7 +117,7 @@ public class HRActionNoticeForm implements IFormController, EventListener<Event>
 	}
 
 	private void createObjects() {
-		form = new CustomForm();
+		form = (CustomForm) getForm();
 		mainLayout = new Borderlayout();
 		labelProcess = new Label();
 		labelBPartner = new Label();
@@ -670,9 +672,16 @@ public class HRActionNoticeForm implements IFormController, EventListener<Event>
 		}
 	}
 
+//	@Override
+//	public ADForm getForm() {
+//		return form;
+//	}
+
 	@Override
-	public ADForm getForm() {
-		return form;
+	protected void buildForm() throws Exception {
+		createObjects();
+		loadGlobalVariables();
+		loadPayrollProcces();
 	}
 
 }

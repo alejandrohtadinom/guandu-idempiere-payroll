@@ -63,7 +63,7 @@ public abstract class CustomFormFactory implements IFormFactory {
 		for (int i = 0; i < cacheForm.size(); i++) {
 			if (formName.equals(cacheForm.get(i).getName())) {
 				try {
-					CustomFormController customForm = cacheForm.get(i).newInstance();
+					CustomFormController customForm = cacheForm.get(i).getDeclaredConstructor().newInstance();
 					log.info(String.format("FormFactory [Class Name: %s]", formName));
 					ADForm adForm = customForm.getForm();
 					adForm.setICustomForm(customForm);
