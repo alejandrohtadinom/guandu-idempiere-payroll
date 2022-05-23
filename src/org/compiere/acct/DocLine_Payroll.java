@@ -53,6 +53,7 @@ public class DocLine_Payroll extends DocLine {
 		m_AccountSign = concept.getAccountSign();
 		m_Amount = line.getAmount();
 		setAmount(line.getAmount());
+		m_HR_Job_ID = line.getHR_Job_ID();
 	} // DocLine_Payroll
 
 	public DocLine_Payroll(MINGMovement line, Doc_HRProcess doc) {
@@ -73,8 +74,6 @@ public class DocLine_Payroll extends DocLine {
 		m_C_Conversion_Rate_ID = line.getC_Conversion_Rate_ID();
 		setAmount(m_Amount);
 		setM_CumulatedAmt(m_CumulatedAmt);
-
-		// TODO Auto-generated constructor stub
 	}
 
 	// References
@@ -90,6 +89,7 @@ public class DocLine_Payroll extends DocLine {
 	private BigDecimal m_CumulatedAmt = Env.ZERO;
 	private int m_C_Currency_ID = 0;
 	private int m_C_Conversion_Rate_ID = 0;
+	private int m_HR_Job_ID = 0;
 
 	public int getHR_Process_ID() {
 		return m_HR_Process_ID;
@@ -149,6 +149,14 @@ public class DocLine_Payroll extends DocLine {
 
 	public void setM_C_Conversion_Rate_ID(int m_C_Conversion_Rate_ID) {
 		this.m_C_Conversion_Rate_ID = m_C_Conversion_Rate_ID;
+	}
+	
+	public int getHR_Job_ID() {
+		return m_HR_Job_ID;
+	}
+
+	public void setHR_Job_ID(int HR_Job_ID) {
+		this.m_HR_Job_ID = HR_Job_ID;
 	}
 
 	

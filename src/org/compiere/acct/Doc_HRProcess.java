@@ -146,13 +146,15 @@ public class Doc_HRProcess extends Doc {
 			int C_Activity_ID = line.getC_Activity_ID();
 			int C_BPartner_ID = line.getC_BPartner_ID();
 			int C_BP_Group_ID = line.getC_BP_Group_ID();
+			int HR_Department_ID = line.getHR_Department_ID();
 			int User1_ID = line.getUser1_ID();
+			int HR_Job_ID = line.getHR_Job_ID();
 			//
 			if (AccountSign != null && AccountSign.length() > 0 && (MHRConcept.ACCOUNTSIGN_Debit.equals(AccountSign)
 					|| MHRConcept.ACCOUNTSIGN_Credit.equals(AccountSign))) {
 				if (isBalancing) {
 					MAccount accountBPD = MAccount.get(getCtx(), getAccountBalancingBPG(as.getC_AcctSchema_ID(),
-							HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Debit, C_BP_Group_ID));
+							HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Debit, C_BP_Group_ID, HR_Department_ID, HR_Job_ID));
 					FactLine debit = fact.createLine(docLine, accountBPD, getC_Currency_ID(), sumAmount, null);
 					if (debit == null)
 						continue;
@@ -162,7 +164,7 @@ public class Doc_HRProcess extends Doc {
 					debit.setC_BPartner_ID(C_BPartner_ID);
 					debit.set_ValueOfColumn("C_BP_Group_ID", C_BP_Group_ID);
 					MAccount accountBPC = MAccount.get(getCtx(), this.getAccountBalancingBPG(as.getC_AcctSchema_ID(),
-							HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Credit, C_BP_Group_ID));
+							HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Credit, C_BP_Group_ID, HR_Department_ID, HR_Job_ID));
 					FactLine credit = fact.createLine(docLine, accountBPC, getC_Currency_ID(), null, sumAmount);
 					if (credit == null)
 						continue;
@@ -174,7 +176,7 @@ public class Doc_HRProcess extends Doc {
 				} else {
 					if (MHRConcept.ACCOUNTSIGN_Debit.equals(AccountSign)) {
 						MAccount accountBPD = MAccount.get(getCtx(), getAccountBalancingBPG(as.getC_AcctSchema_ID(),
-								HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Debit, C_BP_Group_ID));
+								HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Debit, C_BP_Group_ID, HR_Department_ID, HR_Job_ID));
 						FactLine debit = fact.createLine(docLine, accountBPD, getC_Currency_ID(), sumAmount, null);
 						if (debit == null)
 							continue;
@@ -187,7 +189,7 @@ public class Doc_HRProcess extends Doc {
 						sumAmount = sumAmount.abs();
 					} else if (MHRConcept.ACCOUNTSIGN_Credit.equals(AccountSign)) {
 						MAccount accountBPC = MAccount.get(getCtx(), this.getAccountBalancingBPG(
-								as.getC_AcctSchema_ID(), HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Credit, C_BP_Group_ID));
+								as.getC_AcctSchema_ID(), HR_Concept_ID, MHRConcept.ACCOUNTSIGN_Credit, C_BP_Group_ID, HR_Department_ID, HR_Job_ID));
 						FactLine credit = fact.createLine(docLine, accountBPC, getC_Currency_ID(), null, sumAmount);
 						if (credit == null)
 							continue;
@@ -260,27 +262,39 @@ public class Doc_HRProcess extends Doc {
 	 * @param AccountSign   Debit or Credit only
 	 * @return Account ID
 	 */
-	private int getAccountBalancingBPG(int AcctSchema_ID, int HR_Concept_ID, String AccountSign, int p_C_BP_Group_ID) {
-		String field;
-		if (MElementValue.ACCOUNTSIGN_Debit.equals(AccountSign)) {
-			field = X_HR_Concept_Acct.COLUMNNAME_HR_Expense_Acct;
-		} else if (MElementValue.ACCOUNTSIGN_Credit.equals(AccountSign)) {
-			field = X_HR_Concept_Acct.COLUMNNAME_HR_Revenue_Acct;
-		} else {
-			throw new IllegalArgumentException("Invalid value for AccountSign=" + AccountSign);
-		}
-		StringBuilder sqlAccount = new StringBuilder("SELECT COALESCE(").append(field)
-				.append(",0) FROM HR_Concept_Acct")
-				.append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=? ");
-		int Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID,
-				p_C_BP_Group_ID);
-		// Support https://support.ingeint.com/issues/870
-		if (Account_ID <= 0) {
-			sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-					.append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? ");
-			Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID);
-		}
-		return Account_ID;
+	private int getAccountBalancingBPG(int AcctSchema_ID, int HR_Concept_ID, String AccountSign, int C_BP_Group_ID, int HR_Department_ID, int HR_Job_ID) {
+	    String field;
+	    if (MElementValue.ACCOUNTSIGN_Debit.equals(AccountSign))
+	      field = X_HR_Concept_Acct.COLUMNNAME_HR_Expense_Acct;
+	    else if (MElementValue.ACCOUNTSIGN_Credit.equals(AccountSign)) 
+	      field = X_HR_Concept_Acct.COLUMNNAME_HR_Revenue_Acct;
+	    else 
+	    	throw new IllegalArgumentException("Invalid value for AccountSign="+AccountSign);
+	    
+	    StringBuilder sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+	                      .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=?  AND HR_Department_ID=? AND HR_Job_ID is NULL");
+	    int Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID);
+	    if (Account_ID==-1){
+	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_GROUP_ID=? AND HR_Department_ID=? AND HR_Job_ID=?");
+	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID, HR_Job_ID);
+	    }
+	    if (Account_ID==-1){
+	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=? AND HR_Deparment_ID=? ");
+	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID,Account_ID, C_BP_Group_ID, HR_Department_ID);
+	    }
+	    if (Account_ID==-1){
+	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=? AND HR_Department_ID=? ");
+	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID);
+	    }
+	    if (Account_ID==-1){
+	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+	              .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? ");
+	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID);
+	    }
+	    return Account_ID;
 	}
 
 	public BigDecimal SetAmount(int C_Conversion_Rate_ID, int C_Currency_ID, int baseCurrencyId, BigDecimal Amount) {
