@@ -566,6 +566,8 @@ public class HRActionNoticeForm extends CustomFormController implements IFormCon
 		attribute.setValidFrom((Timestamp) fieldValidFromAtt.getValue());
 		attribute.setValidTo((Timestamp) fieldValidToAtt.getValue());
 		attribute.setColumnType(concept.getColumnType());
+		attribute.setQty(BigDecimal.ZERO);
+		attribute.setAmount(BigDecimal.ZERO);
 
 		if (concept.getColumnType().equals(X_HR_Concept.COLUMNTYPE_Quantity)) {
 			BigDecimal value = (BigDecimal) fieldQty.getValue();
