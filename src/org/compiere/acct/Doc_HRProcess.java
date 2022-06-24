@@ -260,6 +260,9 @@ public class Doc_HRProcess extends Doc {
 	 * @param AcctSchema_ID
 	 * @param HR_Concept_ID
 	 * @param AccountSign   Debit or Credit only
+	 * @param C_BP_Group_ID BPartner Group
+	 * @param HR_Department_ID Department
+	 * @param HR_Job_ID Job
 	 * @return Account ID
 	 */
 	private int getAccountBalancingBPG(int AcctSchema_ID, int HR_Concept_ID, String AccountSign, int C_BP_Group_ID, int HR_Department_ID, int HR_Job_ID) {
@@ -272,23 +275,25 @@ public class Doc_HRProcess extends Doc {
 	    	throw new IllegalArgumentException("Invalid value for AccountSign="+AccountSign);
 	    
 	    StringBuilder sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-	                      .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=?  AND HR_Department_ID=? AND HR_Job_ID is NULL");
-	    int Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID);
-	    if (Account_ID==-1){
-	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_GROUP_ID=? AND HR_Department_ID=? AND HR_Job_ID=?");
-	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID, HR_Job_ID);
-	    }
-	    if (Account_ID==-1){
-	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=? AND HR_Department_ID=? ");
-	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID,Account_ID, C_BP_Group_ID, HR_Department_ID);
-	    }
-	    if (Account_ID==-1){
-	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-	              .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? ");
-	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID);
-	    }
+	                      .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND IsActive = 'Y' "
+	                      		+ " AND (C_BP_Group_ID=? OR C_BP_Group_ID IS NULL) AND (HR_Department_ID=? OR HR_Department_ID IS NULL) "
+	                      		+ " AND (HR_Job_ID=? OR HR_Job_ID IS NULL)");
+	    int Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID, HR_Job_ID);
+//	    if (Account_ID==-1){
+//	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+//	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_GROUP_ID=? AND HR_Department_ID=? AND HR_Job_ID=?");
+//	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID, HR_Job_ID);
+//	    }
+//	    if (Account_ID==-1){
+//	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+//	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=? AND HR_Department_ID=? ");
+//	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID);
+//	    }
+//	    if (Account_ID==-1){
+//	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
+//	              .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND IsActive = 'Y'");
+//	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID);
+//	    }
 	    return Account_ID;
 	}
 
@@ -314,19 +319,29 @@ public class Doc_HRProcess extends Doc {
 	
 	@Override
 	public BigDecimal getCurrencyRate() {
-		MHRProcess hrProcess = (MHRProcess) getPO();
-		if(!hrProcess.get_ValueAsBoolean("IsOverrideCurrencyRate"))
+//		MHRProcess hrProcess = (MHRProcess) getPO();
+		if(!process.get_ValueAsBoolean("IsOverrideCurrencyRate"))
 			return null;
 		
 		BigDecimal currencyRate = null; 
 		if(process.get_Value("CurrencyRate") != null)
 			currencyRate = (BigDecimal) process.get_Value("CurrencyRate");
 		if(currencyRate == null || currencyRate.signum() <=0) {
-			if(hrProcess.get_Value("DivideRate") != null)
-				currencyRate = (BigDecimal) hrProcess.get_Value("DivideRate");
+			if(process.get_Value("DivideRate") != null)
+				currencyRate = (BigDecimal) process.get_Value("DivideRate");
 		}
 		
 		return currencyRate;
+	}
+
+	@Override
+	public boolean isConvertible(MAcctSchema acctSchema) {
+		if(process.getC_Currency_ID() != acctSchema.getC_Currency_ID())
+			if(process.get_ValueAsBoolean("IsOverrideCurrencyRate") 
+					&& (process.get_Value("CurrencyRate") != null || process.get_Value("DivideRate") != null))
+				return true;
+		
+		return super.isConvertible(acctSchema);
 	}
 	
 } // Doc_Payroll
