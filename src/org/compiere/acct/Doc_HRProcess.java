@@ -279,21 +279,6 @@ public class Doc_HRProcess extends Doc {
 	                      		+ " AND (C_BP_Group_ID=? OR C_BP_Group_ID IS NULL) AND (HR_Department_ID=? OR HR_Department_ID IS NULL) "
 	                      		+ " AND (HR_Job_ID=? OR HR_Job_ID IS NULL)");
 	    int Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID, HR_Job_ID);
-//	    if (Account_ID==-1){
-//	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-//	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_GROUP_ID=? AND HR_Department_ID=? AND HR_Job_ID=?");
-//	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID, HR_Job_ID);
-//	    }
-//	    if (Account_ID==-1){
-//	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-//	                .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND C_BP_Group_ID=? AND HR_Department_ID=? ");
-//	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID, C_BP_Group_ID, HR_Department_ID);
-//	    }
-//	    if (Account_ID==-1){
-//	        sqlAccount = new StringBuilder("SELECT COALESCE(").append(field).append(",0) FROM HR_Concept_Acct")
-//	              .append(" WHERE HR_Concept_ID=? AND C_AcctSchema_ID=? AND IsActive = 'Y'");
-//	        Account_ID = DB.getSQLValueEx(getTrxName(), sqlAccount.toString(), HR_Concept_ID, AcctSchema_ID);
-//	    }
 	    return Account_ID;
 	}
 
