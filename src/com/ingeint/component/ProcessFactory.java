@@ -25,5 +25,6 @@ public class ProcessFactory extends CustomProcessFactory{
 		registerProcess(org.eevolution.process.PayrollViaEMail.class);
 		registerProcess(org.eevolution.process.HRCreateConcept.class);
 		registerProcess(dev.vsuarez.process.HR_ConceptTest.class);
+		registerProcess(dev.vsuarez.process.HR_PrintExportPaySelection.class);
 	}
 }
