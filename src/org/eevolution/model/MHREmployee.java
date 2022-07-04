@@ -75,27 +75,22 @@ public class MHREmployee extends X_HR_Employee
 
 		// Valid if used definition of payroll per employee > ocurieles 18Nov2014
 		
-		MHRPayroll Payroll = MHRPayroll.get(Env.getCtx(),p.getHR_Payroll_ID());
+		MHRPayroll payroll = MHRPayroll.get(Env.getCtx(),p.getHR_Payroll_ID());
 		
-		if (Payroll !=null || !Payroll.equals(null)){
-			IsPayrollApplicableToEmployee = Payroll.get_ValueAsBoolean("IsemployeeApplicable");
-		}
+		if (payroll !=null)
+			IsPayrollApplicableToEmployee = payroll.get_ValueAsBoolean("IsemployeeApplicable");
+		
 		// This payroll not content periods, NOT IS a Regular Payroll > ogi-cd 28Nov2007
-		if(p.getHR_Payroll_ID() != 0 && p.getHR_Period_ID() != 0 && IsPayrollApplicableToEmployee)
-		
-		{
+		if(p.getHR_Payroll_ID() != 0 && p.getHR_Period_ID() != 0 && IsPayrollApplicableToEmployee) {
 		whereClause.append(" AND (e.HR_Payroll_ID IS NULL OR e.HR_Payroll_ID=?) " );
 			params.add(p.getHR_Payroll_ID());
 		}
 		
 		// HR Period
-		if(p.getHR_Period_ID() == 0)
-		{
+		if(p.getHR_Period_ID() == 0) {
 			whereClause.append(" AND e.StartDate <=? ");
 			params.add(p.getDateAcct());	
-		}
-		else
-		{
+		} else {
 			MHRPeriod period = new MHRPeriod(p.getCtx(), p.getHR_Period_ID(), p.get_TrxName());
 			whereClause.append(" AND e.StartDate <=? ");
 			params.add(period.getEndDate());

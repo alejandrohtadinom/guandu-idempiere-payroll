@@ -19,7 +19,6 @@ import org.compiere.process.ProcessInfoParameter;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.eevolution.model.MHRMovement;
-import org.eevolution.model.MHRProcess;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
