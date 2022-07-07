@@ -22,17 +22,20 @@ import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
+import org.eevolution.model.I_HR_Department;
+import org.eevolution.model.I_HR_Job;
+import org.eevolution.model.I_HR_Movement;
 
 /** Generated Model for HR_PaymentSelectionLine
  *  @author iDempiere (generated) 
- *  @version Release 5.1 - $Id$ */
+ *  @version Release 8.2 - $Id$ */
 public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelectionLine, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20181217L;
+	private static final long serialVersionUID = 20220705L;
 
     /** Standard Constructor */
     public X_HR_PaymentSelectionLine (Properties ctx, int HR_PaymentSelectionLine_ID, String trxName)
@@ -67,7 +70,7 @@ public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelecti
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_HR_PaymentSelectionLine[")
+      StringBuilder sb = new StringBuilder ("X_HR_PaymentSelectionLine[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
@@ -115,6 +118,34 @@ public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelecti
 	public int getC_BPartner_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_C_BPartner_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_BP_BankAccount getC_BP_BankAccount() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_BP_BankAccount)MTable.get(getCtx(), org.compiere.model.I_C_BP_BankAccount.Table_Name)
+			.getPO(getC_BP_BankAccount_ID(), get_TrxName());	}
+
+	/** Set Partner Bank Account.
+		@param C_BP_BankAccount_ID 
+		Bank Account of the Business Partner
+	  */
+	public void setC_BP_BankAccount_ID (int C_BP_BankAccount_ID)
+	{
+		if (C_BP_BankAccount_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_C_BP_BankAccount_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_C_BP_BankAccount_ID, Integer.valueOf(C_BP_BankAccount_ID));
+	}
+
+	/** Get Partner Bank Account.
+		@return Bank Account of the Business Partner
+	  */
+	public int getC_BP_BankAccount_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_C_BP_BankAccount_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -184,9 +215,26 @@ public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelecti
 		return (String)get_Value(COLUMNNAME_EmployeeGroup);
 	}
 
-	public org.eevolution.model.I_HR_Department getHR_Department() throws RuntimeException
+	/** Set Comment/Help.
+		@param Help 
+		Comment or Hint
+	  */
+	public void setHelp (String Help)
+	{
+		set_Value (COLUMNNAME_Help, Help);
+	}
+
+	/** Get Comment/Help.
+		@return Comment or Hint
+	  */
+	public String getHelp () 
+	{
+		return (String)get_Value(COLUMNNAME_Help);
+	}
+
+	public I_HR_Department getHR_Department() throws RuntimeException
     {
-		return (org.eevolution.model.I_HR_Department)MTable.get(getCtx(), org.eevolution.model.I_HR_Department.Table_Name)
+		return (I_HR_Department)MTable.get(getCtx(), I_HR_Department.Table_Name)
 			.getPO(getHR_Department_ID(), get_TrxName());	}
 
 	/** Set Payroll Department.
@@ -209,9 +257,9 @@ public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelecti
 		return ii.intValue();
 	}
 
-	public org.eevolution.model.I_HR_Job getHR_Job() throws RuntimeException
+	public I_HR_Job getHR_Job() throws RuntimeException
     {
-		return (org.eevolution.model.I_HR_Job)MTable.get(getCtx(), org.eevolution.model.I_HR_Job.Table_Name)
+		return (I_HR_Job)MTable.get(getCtx(), I_HR_Job.Table_Name)
 			.getPO(getHR_Job_ID(), get_TrxName());	}
 
 	/** Set Payroll Job.
@@ -229,6 +277,56 @@ public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelecti
 	public int getHR_Job_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Job_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public I_HR_Movement getHR_Movement() throws RuntimeException
+    {
+		return (I_HR_Movement)MTable.get(getCtx(), I_HR_Movement.Table_Name)
+			.getPO(getHR_Movement_ID(), get_TrxName());	}
+
+	/** Set Payroll Movement.
+		@param HR_Movement_ID Payroll Movement	  */
+	public void setHR_Movement_ID (int HR_Movement_ID)
+	{
+		if (HR_Movement_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_HR_Movement_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_HR_Movement_ID, Integer.valueOf(HR_Movement_ID));
+	}
+
+	/** Get Payroll Movement.
+		@return Payroll Movement	  */
+	public int getHR_Movement_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Movement_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public I_HR_PaymentSelection getHR_PaymentSelection() throws RuntimeException
+    {
+		return (I_HR_PaymentSelection)MTable.get(getCtx(), I_HR_PaymentSelection.Table_Name)
+			.getPO(getHR_PaymentSelection_ID(), get_TrxName());	}
+
+	/** Set Payment Selection HR.
+		@param HR_PaymentSelection_ID Payment Selection HR	  */
+	public void setHR_PaymentSelection_ID (int HR_PaymentSelection_ID)
+	{
+		if (HR_PaymentSelection_ID < 1) 
+			set_Value (COLUMNNAME_HR_PaymentSelection_ID, null);
+		else 
+			set_Value (COLUMNNAME_HR_PaymentSelection_ID, Integer.valueOf(HR_PaymentSelection_ID));
+	}
+
+	/** Get Payment Selection HR.
+		@return Payment Selection HR	  */
+	public int getHR_PaymentSelection_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HR_PaymentSelection_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -266,48 +364,6 @@ public class X_HR_PaymentSelectionLine extends PO implements I_HR_PaymentSelecti
 	public String getHR_PaymentSelectionLine_UU () 
 	{
 		return (String)get_Value(COLUMNNAME_HR_PaymentSelectionLine_UU);
-	}
-
-	public I_HR_PaymentSelection getHR_PaymentSelection() throws RuntimeException
-    {
-		return (I_HR_PaymentSelection)MTable.get(getCtx(), I_HR_PaymentSelection.Table_Name)
-			.getPO(getHR_PaymentSelection_ID(), get_TrxName());	}
-
-	/** Set Payment Selection HR.
-		@param HR_PaymentSelection_ID Payment Selection HR	  */
-	public void setHR_PaymentSelection_ID (int HR_PaymentSelection_ID)
-	{
-		if (HR_PaymentSelection_ID < 1) 
-			set_Value (COLUMNNAME_HR_PaymentSelection_ID, null);
-		else 
-			set_Value (COLUMNNAME_HR_PaymentSelection_ID, Integer.valueOf(HR_PaymentSelection_ID));
-	}
-
-	/** Get Payment Selection HR.
-		@return Payment Selection HR	  */
-	public int getHR_PaymentSelection_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_HR_PaymentSelection_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	/** Set Comment/Help.
-		@param Help 
-		Comment or Hint
-	  */
-	public void setHelp (String Help)
-	{
-		set_Value (COLUMNNAME_Help, Help);
-	}
-
-	/** Get Comment/Help.
-		@return Comment or Hint
-	  */
-	public String getHelp () 
-	{
-		return (String)get_Value(COLUMNNAME_Help);
 	}
 
 	/** Set Line No.

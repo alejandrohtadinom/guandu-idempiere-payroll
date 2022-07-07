@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
+import org.eevolution.model.I_HR_Concept;
 
 /** Generated Model for ING_PaymentSelectionType
  *  @author iDempiere (generated) 
@@ -31,7 +32,7 @@ public class X_ING_PaymentSelectionType extends PO implements I_ING_PaymentSelec
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20210930L;
+	private static final long serialVersionUID = 20220705L;
 
     /** Standard Constructor */
     public X_ING_PaymentSelectionType (Properties ctx, int ING_PaymentSelectionType_ID, String trxName)
@@ -39,7 +40,6 @@ public class X_ING_PaymentSelectionType extends PO implements I_ING_PaymentSelec
       super (ctx, ING_PaymentSelectionType_ID, trxName);
       /** if (ING_PaymentSelectionType_ID == 0)
         {
-			setHR_Concept_ID (0);
 			setING_PaymentSelectionType_ID (0);
 			setName (null);
         } */
@@ -118,6 +118,30 @@ public class X_ING_PaymentSelectionType extends PO implements I_ING_PaymentSelec
 		return (String)get_Value(COLUMNNAME_Description);
 	}
 
+	/** Deductions = D */
+	public static final String GROUPMOVEMENTSBY_Deductions = "D";
+	/** Assignments = A */
+	public static final String GROUPMOVEMENTSBY_Assignments = "A";
+	/** Total To Pay = T */
+	public static final String GROUPMOVEMENTSBY_TotalToPay = "T";
+	/** Set Group Movements By.
+		@param GroupMovementsBy 
+		Group Payroll Movements By
+	  */
+	public void setGroupMovementsBy (String GroupMovementsBy)
+	{
+
+		set_Value (COLUMNNAME_GroupMovementsBy, GroupMovementsBy);
+	}
+
+	/** Get Group Movements By.
+		@return Group Payroll Movements By
+	  */
+	public String getGroupMovementsBy () 
+	{
+		return (String)get_Value(COLUMNNAME_GroupMovementsBy);
+	}
+
 	/** Set Comment/Help.
 		@param Help 
 		Comment or Hint
@@ -135,9 +159,9 @@ public class X_ING_PaymentSelectionType extends PO implements I_ING_PaymentSelec
 		return (String)get_Value(COLUMNNAME_Help);
 	}
 
-	public org.eevolution.model.I_HR_Concept getHR_Concept() throws RuntimeException
+	public I_HR_Concept getHR_Concept() throws RuntimeException
     {
-		return (org.eevolution.model.I_HR_Concept)MTable.get(getCtx(), org.eevolution.model.I_HR_Concept.Table_Name)
+		return (I_HR_Concept)MTable.get(getCtx(), I_HR_Concept.Table_Name)
 			.getPO(getHR_Concept_ID(), get_TrxName());	}
 
 	/** Set Payroll Concept.

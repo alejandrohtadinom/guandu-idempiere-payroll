@@ -20,10 +20,13 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
+import org.eevolution.model.I_HR_Department;
+import org.eevolution.model.I_HR_Job;
+import org.eevolution.model.I_HR_Movement;
 
 /** Generated Interface for HR_PaymentSelectionLine
  *  @author iDempiere (generated) 
- *  @version Release 5.1
+ *  @version Release 8.2
  */
 @SuppressWarnings("all")
 public interface I_HR_PaymentSelectionLine 
@@ -32,7 +35,7 @@ public interface I_HR_PaymentSelectionLine
     /** TableName=HR_PaymentSelectionLine */
     public static final String Table_Name = "HR_PaymentSelectionLine";
 
-    /** AD_Table_ID=1000126 */
+    /** AD_Table_ID=1000072 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -92,6 +95,21 @@ public interface I_HR_PaymentSelectionLine
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
+    /** Column name C_BP_BankAccount_ID */
+    public static final String COLUMNNAME_C_BP_BankAccount_ID = "C_BP_BankAccount_ID";
+
+	/** Set Partner Bank Account.
+	  * Bank Account of the Business Partner
+	  */
+	public void setC_BP_BankAccount_ID (int C_BP_BankAccount_ID);
+
+	/** Get Partner Bank Account.
+	  * Bank Account of the Business Partner
+	  */
+	public int getC_BP_BankAccount_ID();
+
+	public org.compiere.model.I_C_BP_BankAccount getC_BP_BankAccount() throws RuntimeException;
+
     /** Column name C_Payment_ID */
     public static final String COLUMNNAME_C_Payment_ID = "C_Payment_ID";
 
@@ -145,6 +163,19 @@ public interface I_HR_PaymentSelectionLine
 	/** Get EmployeeGroup	  */
 	public String getEmployeeGroup();
 
+    /** Column name Help */
+    public static final String COLUMNNAME_Help = "Help";
+
+	/** Set Comment/Help.
+	  * Comment or Hint
+	  */
+	public void setHelp (String Help);
+
+	/** Get Comment/Help.
+	  * Comment or Hint
+	  */
+	public String getHelp();
+
     /** Column name HR_Department_ID */
     public static final String COLUMNNAME_HR_Department_ID = "HR_Department_ID";
 
@@ -154,7 +185,7 @@ public interface I_HR_PaymentSelectionLine
 	/** Get Payroll Department	  */
 	public int getHR_Department_ID();
 
-	public org.eevolution.model.I_HR_Department getHR_Department() throws RuntimeException;
+	public I_HR_Department getHR_Department() throws RuntimeException;
 
     /** Column name HR_Job_ID */
     public static final String COLUMNNAME_HR_Job_ID = "HR_Job_ID";
@@ -165,7 +196,29 @@ public interface I_HR_PaymentSelectionLine
 	/** Get Payroll Job	  */
 	public int getHR_Job_ID();
 
-	public org.eevolution.model.I_HR_Job getHR_Job() throws RuntimeException;
+	public I_HR_Job getHR_Job() throws RuntimeException;
+
+    /** Column name HR_Movement_ID */
+    public static final String COLUMNNAME_HR_Movement_ID = "HR_Movement_ID";
+
+	/** Set Payroll Movement	  */
+	public void setHR_Movement_ID (int HR_Movement_ID);
+
+	/** Get Payroll Movement	  */
+	public int getHR_Movement_ID();
+
+	public I_HR_Movement getHR_Movement() throws RuntimeException;
+
+    /** Column name HR_PaymentSelection_ID */
+    public static final String COLUMNNAME_HR_PaymentSelection_ID = "HR_PaymentSelection_ID";
+
+	/** Set Payment Selection HR	  */
+	public void setHR_PaymentSelection_ID (int HR_PaymentSelection_ID);
+
+	/** Get Payment Selection HR	  */
+	public int getHR_PaymentSelection_ID();
+
+	public I_HR_PaymentSelection getHR_PaymentSelection() throws RuntimeException;
 
     /** Column name HR_PaymentSelectionLine_ID */
     public static final String COLUMNNAME_HR_PaymentSelectionLine_ID = "HR_PaymentSelectionLine_ID";
@@ -184,30 +237,6 @@ public interface I_HR_PaymentSelectionLine
 
 	/** Get HR_PaymentSelectionLine_UU	  */
 	public String getHR_PaymentSelectionLine_UU();
-
-    /** Column name HR_PaymentSelection_ID */
-    public static final String COLUMNNAME_HR_PaymentSelection_ID = "HR_PaymentSelection_ID";
-
-	/** Set Payment Selection HR	  */
-	public void setHR_PaymentSelection_ID (int HR_PaymentSelection_ID);
-
-	/** Get Payment Selection HR	  */
-	public int getHR_PaymentSelection_ID();
-
-	public I_HR_PaymentSelection getHR_PaymentSelection() throws RuntimeException;
-
-    /** Column name Help */
-    public static final String COLUMNNAME_Help = "Help";
-
-	/** Set Comment/Help.
-	  * Comment or Hint
-	  */
-	public void setHelp (String Help);
-
-	/** Get Comment/Help.
-	  * Comment or Hint
-	  */
-	public String getHelp();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";

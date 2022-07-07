@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
+import org.eevolution.model.I_HR_Concept;
 
 /** Generated Interface for ING_PaymentSelectionType
  *  @author iDempiere (generated) 
@@ -32,7 +33,7 @@ public interface I_ING_PaymentSelectionType
     /** TableName=ING_PaymentSelectionType */
     public static final String Table_Name = "ING_PaymentSelectionType";
 
-    /** AD_Table_ID=1000022 */
+    /** AD_Table_ID=1000076 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -108,6 +109,19 @@ public interface I_ING_PaymentSelectionType
 	  */
 	public String getDescription();
 
+    /** Column name GroupMovementsBy */
+    public static final String COLUMNNAME_GroupMovementsBy = "GroupMovementsBy";
+
+	/** Set Group Movements By.
+	  * Group Payroll Movements By
+	  */
+	public void setGroupMovementsBy (String GroupMovementsBy);
+
+	/** Get Group Movements By.
+	  * Group Payroll Movements By
+	  */
+	public String getGroupMovementsBy();
+
     /** Column name Help */
     public static final String COLUMNNAME_Help = "Help";
 
@@ -130,7 +144,7 @@ public interface I_ING_PaymentSelectionType
 	/** Get Payroll Concept	  */
 	public int getHR_Concept_ID();
 
-	public org.eevolution.model.I_HR_Concept getHR_Concept() throws RuntimeException;
+	public I_HR_Concept getHR_Concept() throws RuntimeException;
 
     /** Column name ING_PaymentSelectionType_ID */
     public static final String COLUMNNAME_ING_PaymentSelectionType_ID = "ING_PaymentSelectionType_ID";
