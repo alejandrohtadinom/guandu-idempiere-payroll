@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 import org.compiere.model.MBPBankAccount;
 import org.compiere.model.MBPartner;
 import org.compiere.model.MBankAccount;
-import org.compiere.model.Query;
 import org.compiere.print.MPrintFormat;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
@@ -192,15 +191,18 @@ public class HR_ExportTXTMercantil implements I_ReportExport {
 	private String[] processEmployee(MHRPaymentSelectionLine psLine) {
 		String[] employee = new String[8];
 		MBPartner bpEmployee = (MBPartner) psLine.getC_BPartner();
-		MBPBankAccount bpBankAccount = new Query(bpEmployee.getCtx(), MBPBankAccount.Table_Name, "IsPayroll='Y' AND C_BPartner_ID =?", bpEmployee.get_TrxName())
-				.setOnlyActiveRecords(true).setParameters(bpEmployee.getC_BPartner_ID()).first();
-		if(bpBankAccount == null || bpBankAccount.getAccountNo() == null) {
-			addError("Empleado " + bpEmployee.getName() + ", no Tiene Cuenta Bancaria marcada para Nomina");
+		MBPBankAccount bpBankAccount = (MBPBankAccount) psLine.getC_BP_BankAccount();
+		if(bpBankAccount == null || (bpBankAccount.getAccountNo() == null && bpBankAccount.getA_Name() == null)) {
+			addError("Empleado " + bpEmployee.getName() + ", no Tiene Cuenta Bancaria");
 			return null;
 		}
 		String payForm = "1";
 		if(m_BankOrg_ID != bpBankAccount.getC_Bank_ID())
 			payForm = "3";
+		String bankAccountNo = bpBankAccount.getAccountNo();
+		if(Util.isEmpty(bankAccountNo, true))
+			bankAccountNo = bpBankAccount.getA_Name();
+		
 		String payAmtStr = String.format("%.2f", psLine.getPayAmt().abs()).replace(".", "").replace(",", "");
 		payAmtStr = leftPadding(payAmtStr, 17, "0", true);
 		MHREmployee hrEmployee = MHREmployee.getEmployee(psLine.getCtx(), bpEmployee.getC_BPartner_ID(), psLine.getAD_Org_ID(), psLine.get_TrxName());
@@ -222,7 +224,7 @@ public class HR_ExportTXTMercantil implements I_ReportExport {
 		employee[EM_TAXID_TYPE] = bpEmployee.getTaxID().substring(0, 1);
 		employee[EM_TAXID] = leftPadding(replaceAll(bpEmployee.getTaxID()).substring(1), 15, "0");
 		employee[EM_PAYMENT_FORM] = payForm;
-		employee[EM_BANK_ACCOUNTNO] = replaceAll(bpBankAccount.getAccountNo());
+		employee[EM_BANK_ACCOUNTNO] = replaceAll(bankAccountNo);
 		employee[EM_PAY_AMT] = payAmtStr;
 		employee[EM_EMPLOYEE_CODE] = rightPadding(replaceAll(employeeCode), 16, " ");
 		employee[EM_EMPLOYEE_NAME] = rightPadding(replaceAll(bpEmployee.getName()), 60, " ");
