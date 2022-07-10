@@ -50,6 +50,9 @@ public class EventManager extends CustomEventManager {
 		registerTableEvent(IEventTopics.DOC_AFTER_POST, MHRProcess.Table_Name, Acct_Payroll.class);
 		registerTableEvent(IEventTopics.DOC_AFTER_COMPLETE, MHRProcess.Table_Name, AfterCompletedHRProcess.class);
 		registerTableEvent(IEventTopics.DOC_AFTER_REACTIVATE,MHRProcess.Table_Name, AfterReactiveItHRProcess.class);
+		registerTableEvent(IEventTopics.DOC_AFTER_REVERSEACCRUAL,MHRProcess.Table_Name, AfterReactiveItHRProcess.class);
+		registerTableEvent(IEventTopics.DOC_AFTER_REVERSECORRECT,MHRProcess.Table_Name, AfterReactiveItHRProcess.class);
+		registerTableEvent(IEventTopics.DOC_AFTER_VOID,MHRProcess.Table_Name, AfterReactiveItHRProcess.class);
 		registerTableEvent(IEventTopics.PO_AFTER_NEW, MBPBankAccount.Table_Name, ValidateBankAccount.class);
 		registerTableEvent(IEventTopics.PO_AFTER_CHANGE, MBPBankAccount.Table_Name, ValidateBankAccount.class);
 	}

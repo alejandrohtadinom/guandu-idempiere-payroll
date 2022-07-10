@@ -1,5 +1,6 @@
 package com.ingeint.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
 
@@ -21,7 +22,6 @@ public class MHRLoanLines extends X_HR_LoanLines {
 	}
 	
 	public MHRLoanLines (MHRLoan loan) {
-		
 		this (loan.getCtx(), 0, loan.get_TrxName());
 		if (loan.get_ID()==0)
 			throw new IllegalArgumentException("Header not saved");
@@ -40,7 +40,23 @@ public class MHRLoanLines extends X_HR_LoanLines {
 		
 	}	//	setLoan
 
-
+	@Override
+	protected boolean afterSave(boolean newRecord, boolean success) {
+		if(!newRecord && is_ValueChanged(COLUMNNAME_IsPaid)) {
+			MHRLoan loan = (MHRLoan) getHR_Loan();
+			BigDecimal amount = loan.getOpenAmt();
+			if(isPaid())
+				amount = amount.subtract(getAmt());
+			else
+				amount = amount.add(getAmt());
+			if(amount.signum() > 0) {
+				loan.setOpenAmt(amount);
+				loan.saveEx();
+			}
+		}
+		
+		return super.afterSave(newRecord, success);
+	}
 	
 	/*
 	 * public MOrderLine (MOrder order)
@@ -54,8 +70,4 @@ public class MHRLoanLines extends X_HR_LoanLines {
 
 	 */
 	
-	
-	
-	
-
 }

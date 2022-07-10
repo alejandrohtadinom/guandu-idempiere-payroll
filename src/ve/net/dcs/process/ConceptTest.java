@@ -53,6 +53,8 @@ import org.compiere.util.TimeUtil;
 import org.eevolution.model.*;
 import org.eevolution.process.*;
 
+import com.ingeint.model.MHRLoan;
+
 import bsh.EvalError;
 import bsh.Interpreter;
 
@@ -76,7 +78,7 @@ import bsh.Interpreter;
 public class ConceptTest extends MHRProcess_ConceptTest implements DocAction {
 
 	private int _Process_Period, _Payroll, _Department, _Days, _C_BPartner_ID,_Process,
-			_JobEmployee;
+			_JobEmployee, _HR_Concept_ID;
 	private Object result;
 	private String description,_RegionEmployee;
 	private Timestamp _From, _To, _DateStart, _DateEnd,serviceDate;
@@ -111,15 +113,15 @@ public class ConceptTest extends MHRProcess_ConceptTest implements DocAction {
 
 	public void test() {
 
-result = 0.0;
-
+		result = 0.0;
+		description = "";
 
 //*************************************************************
 //*CC_SUELDO_ULTIMANOMINA_HASTA_LIQ*
 //*************************************************************
-double sueldoDiario = getConcept("CC_SUELDO_DIARIO");
-double diasPendientes= getDays(getConceptDate("C_FECHA_INICIO_PERIODO"),_DateEnd);
-result =sueldoDiario*diasPendientes;
+//double sueldoDiario = getConcept("CC_SUELDO_DIARIO");
+//double diasPendientes= getDays(getConceptDate("C_FECHA_INICIO_PERIODO"),_DateEnd);
+//result =sueldoDiario*diasPendientes;
 //************************************************************************************************
 
 

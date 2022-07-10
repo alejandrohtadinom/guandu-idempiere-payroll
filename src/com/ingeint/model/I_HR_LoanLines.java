@@ -20,10 +20,11 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
+import org.eevolution.model.I_HR_Process;
 
 /** Generated Interface for HR_LoanLines
  *  @author iDempiere (generated) 
- *  @version Release 5.1
+ *  @version Release 8.2
  */
 @SuppressWarnings("all")
 public interface I_HR_LoanLines 
@@ -32,7 +33,7 @@ public interface I_HR_LoanLines
     /** TableName=HR_LoanLines */
     public static final String Table_Name = "HR_LoanLines";
 
-    /** AD_Table_ID=1000041 */
+    /** AD_Table_ID=1000068 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -128,6 +129,30 @@ public interface I_HR_LoanLines
 	/** Get Fee Numbers	  */
 	public int getFeeNumbers();
 
+    /** Column name Help */
+    public static final String COLUMNNAME_Help = "Help";
+
+	/** Set Comment/Help.
+	  * Comment or Hint
+	  */
+	public void setHelp (String Help);
+
+	/** Get Comment/Help.
+	  * Comment or Hint
+	  */
+	public String getHelp();
+
+    /** Column name HR_Loan_ID */
+    public static final String COLUMNNAME_HR_Loan_ID = "HR_Loan_ID";
+
+	/** Set HR_Loan	  */
+	public void setHR_Loan_ID (int HR_Loan_ID);
+
+	/** Get HR_Loan	  */
+	public int getHR_Loan_ID();
+
+	public I_HR_Loan getHR_Loan() throws RuntimeException;
+
     /** Column name HR_LoanLines_ID */
     public static final String COLUMNNAME_HR_LoanLines_ID = "HR_LoanLines_ID";
 
@@ -146,29 +171,16 @@ public interface I_HR_LoanLines
 	/** Get HR_LoanLines_UU	  */
 	public String getHR_LoanLines_UU();
 
-    /** Column name HR_Loan_ID */
-    public static final String COLUMNNAME_HR_Loan_ID = "HR_Loan_ID";
+    /** Column name HR_Process_ID */
+    public static final String COLUMNNAME_HR_Process_ID = "HR_Process_ID";
 
-	/** Set HR_Loan	  */
-	public void setHR_Loan_ID (int HR_Loan_ID);
+	/** Set Payroll Process	  */
+	public void setHR_Process_ID (int HR_Process_ID);
 
-	/** Get HR_Loan	  */
-	public int getHR_Loan_ID();
+	/** Get Payroll Process	  */
+	public int getHR_Process_ID();
 
-	public I_HR_Loan getHR_Loan() throws RuntimeException;
-
-    /** Column name Help */
-    public static final String COLUMNNAME_Help = "Help";
-
-	/** Set Comment/Help.
-	  * Comment or Hint
-	  */
-	public void setHelp (String Help);
-
-	/** Get Comment/Help.
-	  * Comment or Hint
-	  */
-	public String getHelp();
+	public I_HR_Process getHR_Process() throws RuntimeException;
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -182,6 +194,19 @@ public interface I_HR_LoanLines
 	  * The record is active in the system
 	  */
 	public boolean isActive();
+
+    /** Column name IsPaid */
+    public static final String COLUMNNAME_IsPaid = "IsPaid";
+
+	/** Set Paid.
+	  * The document is paid
+	  */
+	public void setIsPaid (boolean IsPaid);
+
+	/** Get Paid.
+	  * The document is paid
+	  */
+	public boolean isPaid();
 
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
@@ -198,16 +223,4 @@ public interface I_HR_LoanLines
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
-	
-	/** Column name HR_Process_ID */
-    public static final String COLUMNNAME_HR_Process_ID = "HR_Process_ID";
-
-	/** Set Payroll Process	  */
-	public void setHR_Process_ID (int HR_Process_ID);
-
-	/** Get Payroll Process	  */
-	public int getHR_Process_ID();
-
-	public org.eevolution.model.I_HR_Process getHR_Process() throws RuntimeException;
-
 }

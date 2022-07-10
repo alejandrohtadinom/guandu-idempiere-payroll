@@ -28,12 +28,12 @@ import com.ingeint.model.MHRPaymentSelectionLine;
  * @author <a href="mailto:victor.suarez.is@gmail.com">Ing. Victor Suarez</a>
  *
  */
-public class HR_ExportTXTMercantil implements I_ReportExport {
+public class HR_ExportTXTMercantilFacil implements I_ReportExport {
 	
 	/** Name File								*/
-	private StringBuilder m_NameFile = new StringBuilder("Nomina_"); 
+	private StringBuilder m_NameFile = new StringBuilder("NominaFacil_"); 
 	/** Logger									*/
-	static private CLogger	s_log = CLogger.getCLogger (HR_ExportTXTMercantil.class);
+	static private CLogger	s_log = CLogger.getCLogger (HR_ExportTXTMercantilFacil.class);
 	/**	File Extension							*/
 	private final String FILE_EXTENSION = ".txt";
 	/**	Error Msg								*/

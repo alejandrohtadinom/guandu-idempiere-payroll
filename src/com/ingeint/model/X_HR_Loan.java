@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
+import org.eevolution.model.I_HR_Concept;
 
 /** Generated Model for HR_Loan
  *  @author iDempiere (generated) 
@@ -33,7 +34,7 @@ public class X_HR_Loan extends PO implements I_HR_Loan, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20211124L;
+	private static final long serialVersionUID = 20220708L;
 
     /** Standard Constructor */
     public X_HR_Loan (Properties ctx, int HR_Loan_ID, String trxName)
@@ -550,6 +551,31 @@ public class X_HR_Loan extends PO implements I_HR_Loan, I_Persistent
 	public String getHelp () 
 	{
 		return (String)get_Value(COLUMNNAME_Help);
+	}
+
+	public I_HR_Concept getHR_Concept() throws RuntimeException
+    {
+		return (I_HR_Concept)MTable.get(getCtx(), I_HR_Concept.Table_Name)
+			.getPO(getHR_Concept_ID(), get_TrxName());	}
+
+	/** Set Payroll Concept.
+		@param HR_Concept_ID Payroll Concept	  */
+	public void setHR_Concept_ID (int HR_Concept_ID)
+	{
+		if (HR_Concept_ID < 1) 
+			set_Value (COLUMNNAME_HR_Concept_ID, null);
+		else 
+			set_Value (COLUMNNAME_HR_Concept_ID, Integer.valueOf(HR_Concept_ID));
+	}
+
+	/** Get Payroll Concept.
+		@return Payroll Concept	  */
+	public int getHR_Concept_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Concept_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
 	}
 
 	/** Set HR_Loan.

@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import org.compiere.model.*;
 import org.compiere.util.KeyNamePair;
+import org.eevolution.model.I_HR_Concept;
 
 /** Generated Interface for HR_Loan
  *  @author iDempiere (generated) 
@@ -32,7 +33,7 @@ public interface I_HR_Loan
     /** TableName=HR_Loan */
     public static final String Table_Name = "HR_Loan";
 
-    /** AD_Table_ID=1000044 */
+    /** AD_Table_ID=1000069 */
     public static final int Table_ID = MTable.getTable_ID(Table_Name);
 
     KeyNamePair Model = new KeyNamePair(Table_ID, Table_Name);
@@ -338,6 +339,17 @@ public interface I_HR_Loan
 	  * Comment or Hint
 	  */
 	public String getHelp();
+
+    /** Column name HR_Concept_ID */
+    public static final String COLUMNNAME_HR_Concept_ID = "HR_Concept_ID";
+
+	/** Set Payroll Concept	  */
+	public void setHR_Concept_ID (int HR_Concept_ID);
+
+	/** Get Payroll Concept	  */
+	public int getHR_Concept_ID();
+
+	public I_HR_Concept getHR_Concept() throws RuntimeException;
 
     /** Column name HR_Loan_ID */
     public static final String COLUMNNAME_HR_Loan_ID = "HR_Loan_ID";

@@ -8,7 +8,6 @@ import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
-import org.eevolution.model.MHRConcept;
 
 public class MHR_Shifts extends X_HR_Shifts {
 

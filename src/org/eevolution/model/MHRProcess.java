@@ -92,7 +92,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 	public String m_columnType = "";
 	public Timestamp m_dateFrom;
 	public Timestamp m_dateTo;
-	private BigDecimal conversionRate = Env.ZERO;
+//	private BigDecimal conversionRate = Env.ZERO;
 	/** HR_Concept_ID->MHRMovement */
 	public Hashtable<Integer, MHRMovement> m_movement = new Hashtable<Integer, MHRMovement>();
 	public MHRPayrollConcept[] linesConcept;
@@ -619,7 +619,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		m_description = null;
 		String errorMsg = "";
 
-		String contract = getHR_Payroll().getHR_Contract().getValue();
+//		String contract = getHR_Payroll().getHR_Contract().getValue();
 
 		try {
 			String text = "";
@@ -649,7 +649,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 
 			}
 			if (ex != null) {
-
+				errorMsg = ex.getLocalizedMessage();
 				throw ex;
 			}
 			result = engine.getResult(false);
@@ -860,6 +860,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 			m_scriptCtx.remove("_DateEnd");
 			m_scriptCtx.remove("_Days");
 			m_scriptCtx.remove("_C_BPartner_ID");
+			m_scriptCtx.remove("_HR_Concept_ID");
 			if (m_employee == null)
 				throw new AdempiereException(
 						"Error: Verifique la informacion del empleado: " + bp.getName() + "_" + bp.getTaxID());
@@ -878,6 +879,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 			// Concept
 			{
 				m_HR_Concept_ID = pc.getHR_Concept_ID();
+				m_scriptCtx.put("_HR_Concept_ID", m_HR_Concept_ID);
 				MHRConcept concept = MHRConcept.get(getCtx(), m_HR_Concept_ID);
 
 				boolean printed = pc.isPrinted() || concept.isPrinted();
@@ -1370,7 +1372,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		if (concept == null)
 			return 0;
 		ArrayList<Object> params = new ArrayList<Object>();
-		Timestamp[] dates = null;
+		//Timestamp[] dates = null;
 
 		StringBuilder whereClause = new StringBuilder();
 		// check ValidFrom:
@@ -3120,7 +3122,6 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 			return 0; // TODO: throw exception?
 		}
 		//
-		MHRPeriod p = MHRPeriod.get(getCtx(), getHR_Period_ID());
 		ArrayList<Object> params = new ArrayList<Object>();
 		StringBuffer whereClause = new StringBuffer();
 		// check client
@@ -3231,6 +3232,5 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 			return 0;
 		}
 	} // getConcept
-
-
+	
 } // MHRProcess

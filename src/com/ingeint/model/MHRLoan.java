@@ -16,6 +16,7 @@ import org.compiere.model.MPeriod;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
+import org.compiere.model.Query;
 import org.compiere.process.DocAction;
 import org.compiere.process.DocOptions;
 import org.compiere.process.DocumentEngine;
@@ -65,7 +66,7 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 		BigDecimal OpenAmt = DB.getSQLValueBD(order.get_TrxName(), "SELECT SUM(OpenAmt) "
 				+ "FROM HR_Loan "
 				+ "WHERE C_BPartner_ID = ? AND IsLoanActive = 'Y' "
-				+ "AND DocStatus IN ('CO','CL') AND OpenAmt >0 ", order.getC_BPartner_ID());
+				+ "AND DocStatus IN ('CO','CL') AND OpenAmt > 0 ", order.getC_BPartner_ID());
 
 		if(OpenAmt==null)
 			OpenAmt = Env.ZERO;
@@ -187,7 +188,7 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 	@Override
 	public boolean approveIt() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -204,45 +205,49 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 
 	@Override
 	public boolean voidIt() {
-		// TODO Auto-generated method stub
-		return false;
+		setIsApproved(false);
+		setIsLoanActive(false);
+		return true;
 	}
 
 	@Override
 	public boolean closeIt() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean reverseCorrectIt() {
-		// TODO Auto-generated method stub
-		return false;
+		setIsApproved(false);
+		setIsLoanActive(false);
+		return true;
 	}
 	
 	@Override
 	public boolean unlockIt() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean invalidateIt() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
-
 
 	@Override
 	public boolean reverseAccrualIt() {
-		// TODO Auto-generated method stub
-		return false;
+		setIsApproved(false);
+		setIsLoanActive(false);
+		return true;
 	}
 
 	@Override
 	public boolean reActivateIt() {
-		// TODO Auto-generated method stub
-		return false;
+		setIsApproved(false);
+		setProcessed(false);
+		setIsLoanActive(false);
+		return true;
 	}
 
 	@Override
@@ -265,19 +270,62 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 
 	@Override
 	public String getProcessMsg() {
-		// TODO Auto-generated method stub
-		return null;
+		return m_processMsg;
 	}
 
 	@Override
 	public int getDoc_User_ID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getAD_User_ID();
 	}
 
 	@Override
 	public BigDecimal getApprovalAmt() {
-		// TODO Auto-generated method stub
-		return null;
+		return getAmt();
 	}	
+	 
+	/**
+	 * Get DueAmt
+	 * @param ctx
+	 * @param trxName
+	 * @param C_BPartner_ID
+	 * @param HR_Concept_ID
+	 * @param endDate
+	 * @return
+	 */
+	public static Double getDueAmt(Properties ctx, String trxName, int C_BPartner_ID, int HR_Concept_ID, Timestamp endDate) {
+		Double dueAmt = 0.0;
+		String whereClause = "DocStatus = 'CO' AND IsLoanActive = 'Y' AND OpenAmt > 0 AND C_BPartner_ID=? AND C_Concept_ID=?";
+		MHRLoan loan = new Query(ctx, MHRLoan.Table_Name, whereClause, trxName)
+				.setOnlyActiveRecords(true)
+				.setParameters(C_BPartner_ID, HR_Concept_ID)
+				.setOrderBy(MHRLoan.COLUMNNAME_DateStart)
+				.first();
+		String sql = "SELECT Amt FROM HR_LoanLines "
+				+ " WHERE HR_Loan_ID =? AND (IsPaid IS NULL OR IsPaid = 'N') AND DATE_TRUNC('day', DueDate) <=?"
+				+ " ORDER BY DueDate";
+		BigDecimal dueAmtBD = DB.getSQLValueBD(trxName, sql, loan.getHR_Loan_ID(), endDate);
+		if(dueAmtBD != null)
+			dueAmt = dueAmtBD.doubleValue();
+		return dueAmt;
+	}
+	
+	public static Double getOpenAmt(Properties ctx, String trxName, int C_BPartner_ID, int HR_Concept_ID, Timestamp endDate) {
+		Double openAmt = 0.0;
+		String whereClause = "DocStatus = 'CO' AND IsLoanActive = 'Y' AND OpenAmt > 0 AND C_BPartner_ID=? AND C_Concept_ID=?";
+		MHRLoan loan = new Query(ctx, MHRLoan.Table_Name, whereClause, trxName)
+				.setOnlyActiveRecords(true)
+				.setParameters(C_BPartner_ID, HR_Concept_ID)
+				.setOrderBy(MHRLoan.COLUMNNAME_DateStart)
+				.first();
+		String sql = "SELECT Amt FROM HR_LoanLines "
+				+ " WHERE HR_Loan_ID =? AND (IsPaid IS NULL OR IsPaid = 'N') AND DATE_TRUNC('day', DueDate) <=?"
+				+ " ORDER BY DueDate";
+		BigDecimal dueAmtBD = DB.getSQLValueBD(trxName, sql, loan.getHR_Loan_ID(), endDate);
+		if(dueAmtBD != null) {
+			BigDecimal openAmtBD = loan.getOpenAmt().subtract(dueAmtBD);
+			openAmt = openAmtBD.doubleValue();
+		}
+		return openAmt;
+	}
+	
 }

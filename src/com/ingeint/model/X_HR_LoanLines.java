@@ -23,17 +23,18 @@ import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
 import org.compiere.util.Env;
+import org.eevolution.model.I_HR_Process;
 
 /** Generated Model for HR_LoanLines
  *  @author iDempiere (generated) 
- *  @version Release 5.1 - $Id$ */
+ *  @version Release 8.2 - $Id$ */
 public class X_HR_LoanLines extends PO implements I_HR_LoanLines, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20180705L;
+	private static final long serialVersionUID = 20220708L;
 
     /** Standard Constructor */
     public X_HR_LoanLines (Properties ctx, int HR_LoanLines_ID, String trxName)
@@ -68,7 +69,7 @@ public class X_HR_LoanLines extends PO implements I_HR_LoanLines, I_Persistent
 
     public String toString()
     {
-      StringBuffer sb = new StringBuffer ("X_HR_LoanLines[")
+      StringBuilder sb = new StringBuilder ("X_HR_LoanLines[")
         .append(get_ID()).append("]");
       return sb.toString();
     }
@@ -144,6 +145,48 @@ public class X_HR_LoanLines extends PO implements I_HR_LoanLines, I_Persistent
 		return ii.intValue();
 	}
 
+	/** Set Comment/Help.
+		@param Help 
+		Comment or Hint
+	  */
+	public void setHelp (String Help)
+	{
+		set_Value (COLUMNNAME_Help, Help);
+	}
+
+	/** Get Comment/Help.
+		@return Comment or Hint
+	  */
+	public String getHelp () 
+	{
+		return (String)get_Value(COLUMNNAME_Help);
+	}
+
+	public I_HR_Loan getHR_Loan() throws RuntimeException
+    {
+		return (I_HR_Loan)MTable.get(getCtx(), I_HR_Loan.Table_Name)
+			.getPO(getHR_Loan_ID(), get_TrxName());	}
+
+	/** Set HR_Loan.
+		@param HR_Loan_ID HR_Loan	  */
+	public void setHR_Loan_ID (int HR_Loan_ID)
+	{
+		if (HR_Loan_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_HR_Loan_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_HR_Loan_ID, Integer.valueOf(HR_Loan_ID));
+	}
+
+	/** Get HR_Loan.
+		@return HR_Loan	  */
+	public int getHR_Loan_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Loan_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set HR Loan Lines.
 		@param HR_LoanLines_ID HR Loan Lines	  */
 	public void setHR_LoanLines_ID (int HR_LoanLines_ID)
@@ -178,51 +221,9 @@ public class X_HR_LoanLines extends PO implements I_HR_LoanLines, I_Persistent
 		return (String)get_Value(COLUMNNAME_HR_LoanLines_UU);
 	}
 
-	public I_HR_Loan getHR_Loan() throws RuntimeException
+	public I_HR_Process getHR_Process() throws RuntimeException
     {
-		return (I_HR_Loan)MTable.get(getCtx(), I_HR_Loan.Table_Name)
-			.getPO(getHR_Loan_ID(), get_TrxName());	}
-
-	/** Set HR_Loan.
-		@param HR_Loan_ID HR_Loan	  */
-	public void setHR_Loan_ID (int HR_Loan_ID)
-	{
-		if (HR_Loan_ID < 1) 
-			set_ValueNoCheck (COLUMNNAME_HR_Loan_ID, null);
-		else 
-			set_ValueNoCheck (COLUMNNAME_HR_Loan_ID, Integer.valueOf(HR_Loan_ID));
-	}
-
-	/** Get HR_Loan.
-		@return HR_Loan	  */
-	public int getHR_Loan_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_HR_Loan_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
-	/** Set Comment/Help.
-		@param Help 
-		Comment or Hint
-	  */
-	public void setHelp (String Help)
-	{
-		set_Value (COLUMNNAME_Help, Help);
-	}
-
-	/** Get Comment/Help.
-		@return Comment or Hint
-	  */
-	public String getHelp () 
-	{
-		return (String)get_Value(COLUMNNAME_Help);
-	}
-	
-	public org.eevolution.model.I_HR_Process getHR_Process() throws RuntimeException
-    {
-		return (org.eevolution.model.I_HR_Process)MTable.get(getCtx(), org.eevolution.model.I_HR_Process.Table_Name)
+		return (I_HR_Process)MTable.get(getCtx(), I_HR_Process.Table_Name)
 			.getPO(getHR_Process_ID(), get_TrxName());	}
 
 	/** Set Payroll Process.
@@ -243,5 +244,29 @@ public class X_HR_LoanLines extends PO implements I_HR_LoanLines, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Paid.
+		@param IsPaid 
+		The document is paid
+	  */
+	public void setIsPaid (boolean IsPaid)
+	{
+		set_Value (COLUMNNAME_IsPaid, Boolean.valueOf(IsPaid));
+	}
+
+	/** Get Paid.
+		@return The document is paid
+	  */
+	public boolean isPaid () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsPaid);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 }
