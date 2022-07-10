@@ -186,6 +186,15 @@ public interface I_ING_PaymentSelectionType
 	/** Get Is Grouped Payment	  */
 	public boolean isGroupedPayment();
 
+    /** Column name IsOnlySameBank */
+    public static final String COLUMNNAME_IsOnlySameBank = "IsOnlySameBank";
+
+	/** Set Only Same Bank	  */
+	public void setIsOnlySameBank (boolean IsOnlySameBank);
+
+	/** Get Only Same Bank	  */
+	public boolean isOnlySameBank();
+
     /** Column name Name */
     public static final String COLUMNNAME_Name = "Name";
 

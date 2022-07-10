@@ -32,7 +32,7 @@ public class X_ING_PaymentSelectionType extends PO implements I_ING_PaymentSelec
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20220705L;
+	private static final long serialVersionUID = 20220708L;
 
     /** Standard Constructor */
     public X_ING_PaymentSelectionType (Properties ctx, int ING_PaymentSelectionType_ID, String trxName)
@@ -230,6 +230,27 @@ public class X_ING_PaymentSelectionType extends PO implements I_ING_PaymentSelec
 	public boolean isGroupedPayment () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsGroupedPayment);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Only Same Bank.
+		@param IsOnlySameBank Only Same Bank	  */
+	public void setIsOnlySameBank (boolean IsOnlySameBank)
+	{
+		set_Value (COLUMNNAME_IsOnlySameBank, Boolean.valueOf(IsOnlySameBank));
+	}
+
+	/** Get Only Same Bank.
+		@return Only Same Bank	  */
+	public boolean isOnlySameBank () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsOnlySameBank);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 

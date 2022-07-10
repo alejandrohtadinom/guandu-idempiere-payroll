@@ -63,6 +63,7 @@ public class PaymentSelection extends CustomProcess {
 		String accountSign = null;
 		boolean isPrinted = false;
 		int HR_Concept_ID = 0;
+		int C_Bank_ID = 0;
 		X_ING_PaymentSelectionType psType = null;
 		if(ps.getING_PaymentSelectionType_ID() > 0) {
 			psType = (X_ING_PaymentSelectionType) ps.getING_PaymentSelectionType();
@@ -76,11 +77,13 @@ public class PaymentSelection extends CustomProcess {
 				else if(X_ING_PaymentSelectionType.GROUPMOVEMENTSBY_TotalToPay.equals(psType.getGroupMovementsBy()))
 					accountSign = "'C','D'";
 			}
+			if(psType.isOnlySameBank())
+				C_Bank_ID = ps.getC_BankAccount().getC_Bank_ID();
 		} else
 			HR_Concept_ID = payroll.get_ValueAsInt("PaymentConcept_ID");
 					
 		MHRMovement[] movement = getMovement(ps.getHR_Process_ID(), HR_Concept_ID, ps.getC_BPartner_ID(), ps.getHR_Job_ID(), ps.getHR_Department_ID(), 
-				ps.getEmployeeGroup(), accountSign, isPrinted);
+				ps.getEmployeeGroup(), accountSign, isPrinted, C_Bank_ID);
 		if(isPrinted)
 			return createGroupedSelectionLine(movement, ps);
 		else
@@ -97,43 +100,49 @@ public class PaymentSelection extends CustomProcess {
 	 * @param employeeGroup
 	 * @param accountSign
 	 * @param isPrinted
+	 * @param C_Bank_ID
 	 * @return Array of Movements
 	 */
 	public MHRMovement[] getMovement(Integer HR_Process_ID, Integer HR_Concept_ID, Integer C_BPartner_ID,
-			Integer HR_Job_ID, Integer HR_Department_ID, String employeeGroup, String accountSign, boolean isPrinted) {
+			Integer HR_Job_ID, Integer HR_Department_ID, String employeeGroup, String accountSign, boolean isPrinted, int C_Bank_ID) {
 		StringBuilder whereClauseFinal = new StringBuilder(MHRMovement.COLUMNNAME_HR_Process_ID + "=? ");
 		List<Object> params = new ArrayList<>();
 		params.add(HR_Process_ID);
 	
 		if(HR_Concept_ID > 0) {
-			whereClauseFinal.append("AND " + MHRMovement.COLUMNNAME_HR_Concept_ID + "=? ");
+			whereClauseFinal.append("AND " + MHRMovement.Table_Name + "." + MHRMovement.COLUMNNAME_HR_Concept_ID + "=? ");
 			params.add(HR_Concept_ID);
 		}
 		if (C_BPartner_ID > 0) {
-			whereClauseFinal.append("AND C_BPartner_ID =? ");
+			whereClauseFinal.append("AND HR_Movement.C_BPartner_ID =? ");
 			params.add(C_BPartner_ID);
 		}
 		if (HR_Job_ID > 0) {
-			whereClauseFinal.append("AND HR_Job_ID =? ");
+			whereClauseFinal.append("AND HR_Movement.HR_Job_ID =? ");
 			params.add(HR_Job_ID);
 		}
 		if (HR_Department_ID > 0) {
-			whereClauseFinal.append("AND HR_Department_ID =? ");
+			whereClauseFinal.append("AND HR_Movement.HR_Department_ID =? ");
 			params.add(HR_Department_ID);
 		}
 		if (employeeGroup != null) {
-			whereClauseFinal.append("AND EmployeeGroup =? ");
+			whereClauseFinal.append("AND HR_Movement.EmployeeGroup =? ");
 			params.add(employeeGroup);
 		}
 		if(accountSign != null) {
-			whereClauseFinal.append("AND AccountSign IN (" + accountSign + ") ");
+			whereClauseFinal.append("AND HR_Movement.AccountSign IN (" + accountSign + ") ");
 		}
 		if(isPrinted) {
-			whereClauseFinal.append("AND IsPrinted =? ");
+			whereClauseFinal.append("AND HR_Movement.IsPrinted =? ");
 			params.add(isPrinted);
 		}
-		
+		if(C_Bank_ID > 0) {
+			whereClauseFinal.append("AND C_BP_BankAccount.C_Bank_ID =? ");
+			params.add(C_Bank_ID);
+		}
+		String joinClause = "LEFT JOIN C_BP_BankAccount C_BP_BankAccount ON C_BP_BankAccount.C_BP_BankAccount_ID = HR_Movement.C_BP_BankAccount_ID";
 		List<MHRMovement> list = new Query(getCtx(), MHRMovement.Table_Name, whereClauseFinal.toString(), get_TrxName())
+				.addJoinClause(joinClause)
 				.setParameters(params).setOrderBy("C_BPartner_ID").list();
 
 		return list.toArray(new MHRMovement[list.size()]);
