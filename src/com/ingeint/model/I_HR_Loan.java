@@ -93,6 +93,15 @@ public interface I_HR_Loan
 	  */
 	public BigDecimal getAmt();
 
+    /** Column name ApprovalDate */
+    public static final String COLUMNNAME_ApprovalDate = "ApprovalDate";
+
+	/** Set Approval Date	  */
+	public void setApprovalDate (Timestamp ApprovalDate);
+
+	/** Get Approval Date	  */
+	public Timestamp getApprovalDate();
+
     /** Column name C_BPartner_ID */
     public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
 
@@ -326,6 +335,15 @@ public interface I_HR_Loan
 
 	/** Get Fee Numbers	  */
 	public int getFeeNumbers();
+
+    /** Column name FrequencyDeduction */
+    public static final String COLUMNNAME_FrequencyDeduction = "FrequencyDeduction";
+
+	/** Set Frequency Deduction	  */
+	public void setFrequencyDeduction (String FrequencyDeduction);
+
+	/** Get Frequency Deduction	  */
+	public String getFrequencyDeduction();
 
     /** Column name Help */
     public static final String COLUMNNAME_Help = "Help";

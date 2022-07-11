@@ -29,10 +29,13 @@ import com.ingeint.callout.SetColumnType;
 import com.ingeint.callout.SetColumnTypeIncident;
 import com.ingeint.callout.SetEmployeeIncidents;
 import com.ingeint.callout.UpdateAmtPaymentSel;
+import com.ingeint.model.MHRLoan;
 import com.ingeint.model.MHRPaymentSelectionLine;
 import com.ingeint.model.MHR_Employee_Incidents;
 import com.ingeint.model.MHR_Shift_Incident_Line;
 import com.ingeint.model.MHR_Shifts_Line;
+
+import dev.vsuarez.callout.SetLoanFrequency;
 
 /**
  * Callout Factory
@@ -54,6 +57,7 @@ public class CalloutFactory extends CustomCalloutFactory {
 		registerCallout(MHR_Shifts_Line.Table_Name, MHR_Shifts_Line.COLUMNNAME_HR_Concept_ID, SetColumnType.class);
 		registerCallout(MHR_Employee_Incidents.Table_Name, MHR_Employee_Incidents.COLUMNNAME_HR_Concept_ID, SetColumnTypeIncident.class);
 		registerCallout(MHR_Shift_Incident_Line.Table_Name, MHR_Shift_Incident_Line.COLUMNNAME_HR_Shifts_ID, SetEmployeeIncidents.class);
+		registerCallout(MHRLoan.Table_Name, MHRLoan.COLUMNNAME_C_BPartner_ID, SetLoanFrequency.class);
 	}
 
 }

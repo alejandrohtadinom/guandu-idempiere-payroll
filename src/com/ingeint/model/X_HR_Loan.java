@@ -34,7 +34,7 @@ public class X_HR_Loan extends PO implements I_HR_Loan, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20220708L;
+	private static final long serialVersionUID = 20220710L;
 
     /** Standard Constructor */
     public X_HR_Loan (Properties ctx, int HR_Loan_ID, String trxName)
@@ -44,6 +44,8 @@ public class X_HR_Loan extends PO implements I_HR_Loan, I_Persistent
         {
 			setC_BPartner_ID (0);
 			setFeeNumbers (0);
+			setFrequencyDeduction (null);
+// 015
 			setHR_Loan_ID (0);
 			setPosted (false);
 // N
@@ -124,6 +126,20 @@ public class X_HR_Loan extends PO implements I_HR_Loan, I_Persistent
 		if (bd == null)
 			 return Env.ZERO;
 		return bd;
+	}
+
+	/** Set Approval Date.
+		@param ApprovalDate Approval Date	  */
+	public void setApprovalDate (Timestamp ApprovalDate)
+	{
+		set_Value (COLUMNNAME_ApprovalDate, ApprovalDate);
+	}
+
+	/** Get Approval Date.
+		@return Approval Date	  */
+	public Timestamp getApprovalDate () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_ApprovalDate);
 	}
 
 	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
@@ -534,6 +550,33 @@ public class X_HR_Loan extends PO implements I_HR_Loan, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Weekly = 007 */
+	public static final String FREQUENCYDEDUCTION_Weekly = "007";
+	/** Biweekly = 015 */
+	public static final String FREQUENCYDEDUCTION_Biweekly = "015";
+	/** Monthly = 030 */
+	public static final String FREQUENCYDEDUCTION_Monthly = "030";
+	/** BiMonthly = 60 */
+	public static final String FREQUENCYDEDUCTION_BiMonthly = "60";
+	/** Quarterly = 90 */
+	public static final String FREQUENCYDEDUCTION_Quarterly = "90";
+	/** Annual = 365 */
+	public static final String FREQUENCYDEDUCTION_Annual = "365";
+	/** Set Frequency Deduction.
+		@param FrequencyDeduction Frequency Deduction	  */
+	public void setFrequencyDeduction (String FrequencyDeduction)
+	{
+
+		set_Value (COLUMNNAME_FrequencyDeduction, FrequencyDeduction);
+	}
+
+	/** Get Frequency Deduction.
+		@return Frequency Deduction	  */
+	public String getFrequencyDeduction () 
+	{
+		return (String)get_Value(COLUMNNAME_FrequencyDeduction);
 	}
 
 	/** Set Comment/Help.

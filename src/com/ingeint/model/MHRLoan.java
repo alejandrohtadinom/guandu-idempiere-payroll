@@ -10,9 +10,9 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import org.compiere.model.MDocType;
+//import org.compiere.model.MDocType;
 import org.compiere.model.MOrder;
-import org.compiere.model.MPeriod;
+//import org.compiere.model.MPeriod;
 import org.compiere.model.MSysConfig;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -82,7 +82,7 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 			MHRLoanLines lines = new MHRLoanLines(loan);
 			lines.setFeeNumbers(i);
 			lines.setAmt(feeAmt);
-			lines.setDueDate(new java.sql.Timestamp(calculateDate(StartDate,30).getTime()));
+			lines.setDueDate(new Timestamp(calculateDate(StartDate, loan.getFrequncyDeduction()).getTime()));
 			StartDate = new Date(lines.getDueDate().getTime());	
 			lines.saveEx();			
 		}//Generate Lines
@@ -99,7 +99,7 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 			MHRLoanLines lines = new MHRLoanLines(loan);
 			lines.setFeeNumbers(i);
 			lines.setAmt(feeAmt);
-			lines.setDueDate(new java.sql.Timestamp(calculateDate(StartDate,30).getTime()));
+			lines.setDueDate(new Timestamp(calculateDate(StartDate, loan.getFrequncyDeduction()).getTime()));
 			StartDate = new Date(lines.getDueDate().getTime());
 			lines.saveEx();			
 		}
@@ -144,14 +144,14 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this, ModelValidator.TIMING_BEFORE_PREPARE);
 		if (m_processMsg != null)
 			return DocAction.STATUS_Invalid;
-		MDocType dt = MDocType.get(getCtx(), getC_DocTypeTarget_ID());
+//		MDocType dt = MDocType.get(getCtx(), getC_DocTypeTarget_ID());
 
 		//	Std Period open?
-		if (!MPeriod.isOpen(getCtx(), getDateAcct(), dt.getDocBaseType(), getAD_Org_ID()))
-		{
-			m_processMsg = "@PeriodClosed@";
-			return DocAction.STATUS_Invalid;
-		}		
+//		if (!MPeriod.isOpen(getCtx(), getDateAcct(), dt.getDocBaseType(), getAD_Org_ID()))
+//		{
+//			m_processMsg = "@PeriodClosed@";
+//			return DocAction.STATUS_Invalid;
+//		}		
 		setC_DocType_ID(getC_DocTypeTarget_ID());
 		setIsLoanActive(true);
 		setIsApproved(true);
@@ -309,6 +309,15 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 		return dueAmt;
 	}
 	
+	/**
+	 * Get Open Amount
+	 * @param ctx
+	 * @param trxName
+	 * @param C_BPartner_ID
+	 * @param HR_Concept_ID
+	 * @param endDate
+	 * @return
+	 */
 	public static Double getOpenAmt(Properties ctx, String trxName, int C_BPartner_ID, int HR_Concept_ID, Timestamp endDate) {
 		Double openAmt = 0.0;
 		String whereClause = "DocStatus = 'CO' AND IsLoanActive = 'Y' AND OpenAmt > 0 AND C_BPartner_ID=? AND C_Concept_ID=?";
@@ -326,6 +335,17 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 			openAmt = openAmtBD.doubleValue();
 		}
 		return openAmt;
+	}
+	
+	/**
+	 * Get Frequency Deduction
+	 * @return
+	 */
+	public int getFrequncyDeduction() {
+		int frequency = 15;
+		if(getFrequencyDeduction() != null && !"".equals(getFrequencyDeduction()))
+			frequency = Integer.valueOf(getFrequencyDeduction());
+		return frequency;
 	}
 	
 }
