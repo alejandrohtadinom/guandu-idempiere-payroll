@@ -75,37 +75,49 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 		loan.saveEx();
 		
 		//Generate Lines
-		BigDecimal feeAmt = order.getGrandTotal().divide(BigDecimal.valueOf(loan.getFeeNumbers(), 0));
-		Date StartDate=new Date(loan.getDateStart().getTime());
-		
-		for (int i=1; i <= loan.getFeeNumbers(); i= i+1) {
-			MHRLoanLines lines = new MHRLoanLines(loan);
-			lines.setFeeNumbers(i);
-			lines.setAmt(feeAmt);
-			lines.setDueDate(new Timestamp(calculateDate(StartDate, loan.getFrequncyDeduction()).getTime()));
-			StartDate = new Date(lines.getDueDate().getTime());	
-			lines.saveEx();			
-		}//Generate Lines
+		BigDecimal feeAmt = order.getGrandTotal().divide(BigDecimal.valueOf(loan.getFeeNumbers(), 0));		
+		createLines(loan, feeAmt);
 		
 		return loan;
 	}	
-		
+	
+	/**
+	 * Create Loan Lines
+	 * @param loan
+	 */
 	public static void createLoanLines(MHRLoan loan) {
-		//Generate Lines
 		BigDecimal feeAmt = loan.getAmt().divide(BigDecimal.valueOf(loan.getFeeNumbers()), 2, RoundingMode.HALF_UP);
-	    Date StartDate=new Date(loan.getDateStart().getTime());
-		
+		createLines(loan, feeAmt);		
+	}//Generate Lines
+	
+	/**
+	 * Create Lines From Loan
+	 * @param loan
+	 * @param feeAmt
+	 */
+	public static void createLines(MHRLoan loan, BigDecimal feeAmt) {
+		if(loan == null || feeAmt == null)
+			return;
+		Date startDate = null;
 		for (int i=1; i <= loan.getFeeNumbers(); i= i+1) {
 			MHRLoanLines lines = new MHRLoanLines(loan);
 			lines.setFeeNumbers(i);
 			lines.setAmt(feeAmt);
-			lines.setDueDate(new Timestamp(calculateDate(StartDate, loan.getFrequncyDeduction()).getTime()));
-			StartDate = new Date(lines.getDueDate().getTime());
+			if(startDate == null)
+				lines.setDueDate(loan.getDateStart());
+			else
+				lines.setDueDate(new Timestamp(calculateDate(startDate, loan.getFrequencyDeductionInt()).getTime()));
+			startDate = new Date(lines.getDueDate().getTime());
 			lines.saveEx();			
 		}
-		
-	}//Generate Lines
+	}
 	
+	/**
+	 * Calculate Date
+	 * @param date
+	 * @param days
+	 * @return
+	 */
 	public static Date calculateDate(Date date, int days){
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date); 
@@ -341,7 +353,7 @@ public class MHRLoan extends X_HR_Loan implements DocAction, DocOptions {
 	 * Get Frequency Deduction
 	 * @return
 	 */
-	public int getFrequncyDeduction() {
+	public int getFrequencyDeductionInt() {
 		int frequency = 15;
 		if(getFrequencyDeduction() != null && !"".equals(getFrequencyDeduction()))
 			frequency = Integer.valueOf(getFrequencyDeduction());
