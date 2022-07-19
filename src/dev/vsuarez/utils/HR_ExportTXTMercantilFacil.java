@@ -31,7 +31,7 @@ import com.ingeint.model.MHRPaymentSelectionLine;
 public class HR_ExportTXTMercantilFacil implements I_ReportExport {
 	
 	/** Name File								*/
-	private StringBuilder m_NameFile = new StringBuilder("NominaFacil_"); 
+	private StringBuilder m_NameFile = new StringBuilder("NominaFacil_");
 	/** Logger									*/
 	static private CLogger	s_log = CLogger.getCLogger (HR_ExportTXTMercantilFacil.class);
 	/**	File Extension							*/
@@ -205,7 +205,7 @@ public class HR_ExportTXTMercantilFacil implements I_ReportExport {
 		
 		String payAmtStr = String.format("%.2f", psLine.getPayAmt().abs()).replace(".", "").replace(",", "");
 		payAmtStr = leftPadding(payAmtStr, 17, "0", true);
-		MHREmployee hrEmployee = MHREmployee.getEmployee(psLine.getCtx(), bpEmployee.getC_BPartner_ID(), psLine.getAD_Org_ID(), psLine.get_TrxName());
+		MHREmployee hrEmployee = MHREmployee.getActiveEmployee(psLine.getCtx(), bpEmployee.getC_BPartner_ID(), psLine.getAD_Org_ID(), psLine.get_TrxName());
 		String employeeCode = hrEmployee.getNationalCode();
 		if(Util.isEmpty(employeeCode, true))
 			employeeCode = hrEmployee.getCode();
@@ -237,7 +237,7 @@ public class HR_ExportTXTMercantilFacil implements I_ReportExport {
 	 * Write Lines
 	 * @throws IOException
 	 */
-	private void writeLine(String[] employee) throws IOException {				
+	private void writeLine(String[] employee) throws IOException {			
 		StringBuffer line = new StringBuffer("");
 		line.append(TYPE_LINE)						// Type Line - Constant
 			.append(employee[EM_TAXID_TYPE])		// TaxID Type for Employee
