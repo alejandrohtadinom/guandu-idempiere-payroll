@@ -1,7 +1,6 @@
 package com.ingeint.process;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -202,14 +201,15 @@ public class PaymentSelection extends CustomProcess {
 	 * @return
 	 */
 	private String createSelectionLine(MHRMovement currentMovement, MHRPaymentSelection ps, BigDecimal totalToPay) {
-		MathContext mc = new MathContext(6); // 6 precision
+		int precision = DB.getSQLValue(ps.get_TrxName(), "SELECT StdPrecision FROM C_Currency WHERE C_Currency_ID =?", ps.getING_PaymentSelectionType().getC_Currency_ID());
+		totalToPay = totalToPay.setScale(precision, RoundingMode.HALF_UP);
 		MHRPaymentSelectionLine psLine = new MHRPaymentSelectionLine(ps);
 		psLine.setC_BPartner_ID(currentMovement.getC_BPartner_ID());
 		psLine.setAmount(totalToPay);
 		psLine.setHR_Department_ID(currentMovement.getHR_Department_ID());
 		psLine.setHR_Job_ID(currentMovement.getHR_Job_ID());
 		psLine.setEmployeeGroup(ps.getEmployeeGroup());
-		psLine.setPayAmt(totalToPay.multiply(p_Percent).round(mc));
+		psLine.setPayAmt(totalToPay.multiply(p_Percent).setScale(precision, RoundingMode.HALF_UP));
 		psLine.setOpenAmt(totalToPay.subtract(psLine.getPayAmt()));
 		psLine.setC_BP_BankAccount_ID(currentMovement.getC_BP_BankAccount_ID());
 		if(!psLine.save())
@@ -225,20 +225,21 @@ public class PaymentSelection extends CustomProcess {
 	 * @return NULL when no Error
 	 */
 	private String createSelectionLine(MHRMovement[] movement, MHRPaymentSelection ps) {
-		MathContext mc = new MathContext(6); // 4 precision
+		int precision = DB.getSQLValue(ps.get_TrxName(), "SELECT StdPrecision FROM C_Currency WHERE C_Currency_ID =?", ps.getING_PaymentSelectionType().getC_Currency_ID());
 		try {
 			for (MHRMovement move : movement) {
-				MHRPaymentSelectionLine psline = new MHRPaymentSelectionLine(ps);
-				psline.setC_BPartner_ID(move.getC_BPartner_ID());
-				psline.setAmount(move.getAmount());
-				psline.setHR_Department_ID(move.getHR_Department_ID());
-				psline.setHR_Job_ID(move.getHR_Job_ID());
-				psline.setEmployeeGroup(ps.getEmployeeGroup());
-				psline.setPayAmt(move.getAmount().multiply(p_Percent).round(mc));
-				psline.setOpenAmt(move.getAmount().subtract(psline.getPayAmt()));
-				psline.setHR_Movement_ID(move.getHR_Movement_ID());
-				psline.setC_BP_BankAccount_ID(move.getC_BP_BankAccount_ID());
-				if(!psline.save())
+				BigDecimal amount = move.getAmount().setScale(precision, RoundingMode.HALF_UP);
+				MHRPaymentSelectionLine psLine = new MHRPaymentSelectionLine(ps);
+				psLine.setC_BPartner_ID(move.getC_BPartner_ID());
+				psLine.setAmount(amount);
+				psLine.setHR_Department_ID(move.getHR_Department_ID());
+				psLine.setHR_Job_ID(move.getHR_Job_ID());
+				psLine.setEmployeeGroup(ps.getEmployeeGroup());
+				psLine.setPayAmt(amount.multiply(p_Percent).setScale(precision, RoundingMode.HALF_UP));
+				psLine.setOpenAmt(amount.subtract(psLine.getPayAmt()));
+				psLine.setHR_Movement_ID(move.getHR_Movement_ID());
+				psLine.setC_BP_BankAccount_ID(move.getC_BP_BankAccount_ID());
+				if(!psLine.save())
 					return "@Error@: No se pudo guardar Linea de Seleccion de Pago, para Empleado: " + move.getC_BPartner().getName();
 			}
 		} catch (Exception e) {
