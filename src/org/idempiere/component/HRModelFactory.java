@@ -18,7 +18,7 @@ public class HRModelFactory implements IModelFactory {
 	private final static CLogger log = CLogger.getCLogger(HRModelFactory.class);
 	private static CCache<String, Class<?>> cache = new CCache<String, Class<?>>("PO_Class", 20);
 
-	private final static String prefixTable = "HR_";
+//	private final static String prefixTable = "HR_";
 	private final static String prefixModel = "M";
 	private final static String prefixModelDefault = "X_";
 	private static final String entityTypeTable = "EE02";
@@ -73,7 +73,7 @@ public class HRModelFactory implements IModelFactory {
 
 		try {
 			constructor = clazz.getDeclaredConstructor(new Class[] { Properties.class, int.class, String.class });
-			model = (PO) constructor.newInstance(new Object[] { Env.getCtx(), new Integer(Record_ID), trxName });
+			model = (PO) constructor.newInstance(new Object[] { Env.getCtx(), Record_ID, trxName });
 		} catch (Exception e) {
 			if (log.isLoggable(Level.WARNING))
 				log.warning(String.format("Class can not be instantiated for table: %s", tableName));

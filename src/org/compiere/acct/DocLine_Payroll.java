@@ -54,12 +54,14 @@ public class DocLine_Payroll extends DocLine {
 		m_Amount = line.getAmount();
 		setAmount(line.getAmount());
 		m_HR_Job_ID = line.getHR_Job_ID();
+		m_C_Currency_ID = line.getC_Currency_ID();
+		setC_ConversionType_ID(line.getC_ConversionType_ID());
 	} // DocLine_Payroll
 
 	public DocLine_Payroll(MINGMovement line, Doc_HRProcess doc) {
 		super(line, doc);
 		MHRConcept concept = MHRConcept.get(Env.getCtx(), line.getHR_Concept_ID());
-
+		//
 		m_HR_Concept_ID = concept.getHR_Concept_ID();
 		m_HR_Process_ID = line.getHR_Process_ID();
 		m_AccountSign = concept.getAccountSign();

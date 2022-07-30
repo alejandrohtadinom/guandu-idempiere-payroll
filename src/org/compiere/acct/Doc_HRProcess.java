@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
 import org.compiere.model.MCharge;
-import org.compiere.model.MConversionRate;
-import org.compiere.model.MCurrency;
+//import org.compiere.model.MConversionRate;
+//import org.compiere.model.MCurrency;
 import org.compiere.model.MElementValue;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
@@ -282,26 +282,30 @@ public class Doc_HRProcess extends Doc {
 	    return Account_ID;
 	}
 
-	public BigDecimal SetAmount(int C_Conversion_Rate_ID, int C_Currency_ID, int baseCurrencyId, BigDecimal Amount) {
-		int stdPrecision = MCurrency.getStdPrecision(getCtx(), baseCurrencyId);
-		BigDecimal invAmt = null;
-		BigDecimal cr = Env.ZERO;
-
-		if (C_Conversion_Rate_ID <= 0)
-			cr = MConversionRate.getRate(C_Currency_ID, baseCurrencyId, getDateAcct(), 0, getAD_Client_ID(),
-					getAD_Org_ID());
-		else {
-			MConversionRate rate = new MConversionRate(getCtx(), C_Conversion_Rate_ID, getTrxName());
-			cr = rate.getMultiplyRate();
-		}
-		
-		invAmt = Amount.multiply(cr);
-		if (invAmt.scale() > stdPrecision)
-			invAmt = invAmt.setScale(stdPrecision, RoundingMode.HALF_UP);
-
-		return invAmt;
-	}
+//	public BigDecimal setAmount(int C_Conversion_Rate_ID, int C_Currency_ID, int baseCurrencyId, BigDecimal Amount) {
+//		int stdPrecision = MCurrency.getStdPrecision(getCtx(), baseCurrencyId);
+//		BigDecimal invAmt = null;
+//		BigDecimal cr = Env.ZERO;
+//
+//		if (C_Conversion_Rate_ID <= 0)
+//			cr = MConversionRate.getRate(C_Currency_ID, baseCurrencyId, getDateAcct(), 0, getAD_Client_ID(),
+//					getAD_Org_ID());
+//		else {
+//			MConversionRate rate = new MConversionRate(getCtx(), C_Conversion_Rate_ID, getTrxName());
+//			cr = rate.getMultiplyRate();
+//		}
+//		
+//		invAmt = Amount.multiply(cr);
+//		if (invAmt.scale() > stdPrecision)
+//			invAmt = invAmt.setScale(stdPrecision, RoundingMode.HALF_UP);
+//
+//		return invAmt;
+//	}
 	
+	/**
+	 * Get Currency Rate when Is Override Currency Rate 
+	 * @return Currency Rate
+	 */
 	@Override
 	public BigDecimal getCurrencyRate() {
 //		MHRProcess hrProcess = (MHRProcess) getPO();

@@ -16,8 +16,6 @@ import org.eevolution.model.I_HR_Process;
 
 import com.ingeint.model.I_HR_Loan;
 
-import dev.vsuarez.acct.Doc_HRLoanEmployee;
-
 public class HRDocFactory implements IDocFactory {
 	private final static CLogger s_log = CLogger.getCLogger(HRDocFactory.class);
 
@@ -68,9 +66,9 @@ public class HRDocFactory implements IDocFactory {
 		if (tableName.equals(I_HR_Process.Table_Name)) {
 			return new Doc_HRProcess(as, rs, trxName);
 		}
-		if(tableName.equals(I_HR_Loan.Table_Name)) {
-			return new Doc_HRLoanEmployee(as, rs, trxName);
-		}
+//		if(tableName.equals(I_HR_Loan.Table_Name)) {
+//			return new Doc_HRLoanEmployee(as, rs, trxName);
+//		}
 		return null;
 	}
 
