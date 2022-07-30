@@ -43,6 +43,9 @@ public class MHRMovement extends X_HR_Movement
 	 */
 	private static final long serialVersionUID = -9074136731316014532L;
 
+   /** Column name C_ConversionType_ID */
+    public static final String COLUMNNAME_C_ConversionType_ID = "C_ConversionType_ID";
+    
 	/**
 	 * 	Standard Constructor
 	 *	@param ctx context
@@ -103,6 +106,7 @@ public class MHRMovement extends X_HR_Movement
 		if (hrconcept.getColumnType().equals(MHRConcept.COLUMNTYPE_Quantity)){				// Concept Type
 			setQty(impHRm.getQty());
 		} else if (hrconcept.getColumnType().equals(MHRConcept.COLUMNTYPE_Amount)){
+			setC_ConversionType_ID(impHRm.get_ValueAsInt("C_ConversionType_ID"));
 			setAmount(impHRm.getAmount());
 		} else if (hrconcept.getColumnType().equals(MHRConcept.COLUMNTYPE_Date)){
 			setServiceDate(impHRm.getServiceDate());
@@ -236,8 +240,11 @@ public class MHRMovement extends X_HR_Movement
 			if(process.get_Value("CurrencyRate") != null)
 				currencyRate = (BigDecimal) process.get_Value("CurrencyRate");
 			if(!process.get_ValueAsBoolean("IsOverrideCurrencyRate") || currencyRate.signum() <= 0) {
+				int C_ConversionType_ID = getC_ConversionType_ID();
+				if(C_ConversionType_ID <=0)
+					C_ConversionType_ID = process.get_ValueAsInt("C_ConversionType_ID");
 				convAmt = MConversionRate.convert(getCtx(), amount, from_C_Currency_ID, prCurrencyID, process.getDateAcct(), 
-						process.get_ValueAsInt("C_ConversionType_ID"), getAD_Client_ID(), getAD_Org_ID());
+						C_ConversionType_ID, getAD_Client_ID(), getAD_Org_ID());
 			} else {
 				MClientInfo info = MClientInfo.get(getAD_Client_ID());
 				MAcctSchema invAcctShema = MAcctSchema.get(info.getC_AcctSchema1_ID());
@@ -279,6 +286,22 @@ public class MHRMovement extends X_HR_Movement
 	@Override
 	public void setAmount(BigDecimal amount) {
 		super.setAmount(getConvertedAmount(amount, getC_Currency_ID()));
+	}
+	
+	/**
+	 * Get Conversion Type ID
+	 * @return C_ConversionType_ID
+	 */
+	public int getC_ConversionType_ID() {
+		return get_ValueAsInt(COLUMNNAME_C_ConversionType_ID);
+	}
+	
+	/**
+	 * Set Conversion Type ID
+	 * @param C_ConversionType_ID
+	 */
+	public void setC_ConversionType_ID(int C_ConversionType_ID) {
+		set_Value(COLUMNNAME_C_ConversionType_ID, C_ConversionType_ID);
 	}
 	
 	

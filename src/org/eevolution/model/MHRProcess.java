@@ -597,6 +597,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 				MHRMovement lastM = movements.get(mvm.getHR_Concept_ID());
 				String columntype = lastM.getColumnType();
 				if (columntype.equals(MHRConcept.COLUMNTYPE_Amount)) {
+					mvm.setC_ConversionType_ID(lastM.getC_ConversionType_ID());
 					mvm.addAmount(lastM.getAmount());
 				} else if (columntype.equals(MHRConcept.COLUMNTYPE_Quantity)) {
 					mvm.addQty(lastM.getQty());
@@ -722,6 +723,7 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 			mv.setValidTo(m_dateTo);
 			mv.setPP_Cost_Collector_ID(cc.getPP_Cost_Collector_ID());
 			mv.setIsRegistered(true);
+			mv.setC_ConversionType_ID(att.getC_ConversionType_ID());
 			mv.setColumnValue(result);
 			mv.setProcessed(true);
 			mv.saveEx();
@@ -993,8 +995,10 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		movement.setC_Activity_ID(m_employee.getC_Activity_ID());
 		movement.setUser1_ID(m_employee.get_ValueAsInt("User1_ID"));
 		movement.set_ValueOfColumn("EmployeeGroup", partner.get_Value("EmployeeGroup"));
-		if(att.getColumnType().equalsIgnoreCase(MHRAttribute.COLUMNTYPE_Amount))
+		if(att.getColumnType().equalsIgnoreCase(MHRAttribute.COLUMNTYPE_Amount)) {
 			movement.setC_Currency_ID(att.get_ValueAsInt("C_Currency_ID"));
+			movement.setC_ConversionType_ID(att.getC_ConversionType_ID());
+		}
 		if (MHRConcept.TYPE_RuleEngine.equals(concept.getType())) {
 			log.info("Executing rule for concept " + concept.getValue());
 			movement.setAccountSign(concept.getAccountSign());

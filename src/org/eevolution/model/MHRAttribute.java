@@ -30,6 +30,8 @@ public class MHRAttribute extends X_HR_Attribute
 {
 	private static final long serialVersionUID = 3783311896401143394L;
 	
+    /** Column name C_ConversionType_ID */
+    public static final String COLUMNNAME_C_ConversionType_ID = "C_ConversionType_ID";
 	
 	/**
 	 * @deprecated since 3.5.3a
@@ -122,5 +124,21 @@ public class MHRAttribute extends X_HR_Attribute
 	public I_HR_Concept getHR_Concept()
 	{
 		return MHRConcept.get(getCtx(), getHR_Concept_ID());
+	}
+	
+	/**
+	 * Get Conversion Type ID
+	 * @return C_ConversionType_ID
+	 */
+	public int getC_ConversionType_ID() {
+		return get_ValueAsInt(COLUMNNAME_C_ConversionType_ID);
+	}
+	
+	/**
+	 * Set Conversion Type ID
+	 * @param C_ConversionType_ID
+	 */
+	public void setC_ConversionType_ID(int C_ConversionType_ID) {
+		set_Value(COLUMNNAME_C_ConversionType_ID, C_ConversionType_ID);
 	}
 }
