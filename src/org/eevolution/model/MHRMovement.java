@@ -301,7 +301,8 @@ public class MHRMovement extends X_HR_Movement
 	 * @param C_ConversionType_ID
 	 */
 	public void setC_ConversionType_ID(int C_ConversionType_ID) {
-		set_Value(COLUMNNAME_C_ConversionType_ID, C_ConversionType_ID);
+		if(C_ConversionType_ID > 0)
+			set_Value(COLUMNNAME_C_ConversionType_ID, C_ConversionType_ID);
 	}
 	
 	
