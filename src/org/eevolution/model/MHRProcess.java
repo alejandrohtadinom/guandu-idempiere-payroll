@@ -3237,4 +3237,211 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		}
 	} // getConcept
 	
+	/**
+	 * Returns number of non business days between 2 dates
+	 * @param startDate
+	 * @param endDate
+	 * @param clientID
+	 * @param trxName
+	 * @return
+	 */
+	public static int getBusinessDaysBetween(Timestamp startDate, Timestamp endDate, int clientID, String trxName) {
+		int retValue = 0;
+		
+		if (startDate.equals(endDate))
+			return 0;
+	
+			boolean negative = false;
+			if (endDate.before(startDate)) {
+				negative = true;
+				Timestamp temp = startDate;
+				startDate = endDate;
+				endDate = temp;
+			}
+	
+			ArrayList<Timestamp> nbd = new ArrayList<Timestamp>();
+			StringBuilder sql = new StringBuilder("SELECT Date1, Name FROM C_NonBusinessDay WHERE AD_Client_ID IN (0, ").append(clientID)
+					.append(") AND Date1 >= ").append(DB.TO_DATE(startDate)).append(" AND Date1 <= ").append(DB.TO_DATE(endDate));
+			PreparedStatement ps = null;
+			ResultSet rs = null;
+			try {
+				ps = DB.prepareStatement(sql.toString(), trxName);
+				rs = ps.executeQuery();
+				while (rs.next())
+					nbd.add(rs.getTimestamp(1));
+			} catch (Exception e) {
+			e.printStackTrace();
+			} finally {
+				DB.close(rs, ps);
+			}
+	
+			GregorianCalendar cal = new GregorianCalendar();
+			cal.setTime(startDate);
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+	
+			GregorianCalendar calEnd = new GregorianCalendar();
+			calEnd.setTime(endDate);
+			calEnd.set(Calendar.HOUR_OF_DAY, 0);
+			calEnd.set(Calendar.MINUTE, 0);
+			calEnd.set(Calendar.SECOND, 0);
+			calEnd.set(Calendar.MILLISECOND, 0);
+			System.out.println("getBusinessDaysBetween - Start=" + startDate + ", End=" + endDate + ", dayStart=" + cal.get(Calendar.DAY_OF_YEAR) + ", dayEnd=" + calEnd.get(Calendar.DAY_OF_YEAR));		
+			while (cal.before(calEnd) || cal.equals(calEnd)) {
+				if (!nbd.contains(new Timestamp(cal.getTimeInMillis()))) {
+					if (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
+						retValue++;
+						String[] strDays = new String[] { "Sunday", "Monday", "Tuesday","Wednesday", "Thusday", "Friday", "Saturday" };
+						System.out.println("getBusinessDaysBetween - Start= " + cal.get(Calendar.DAY_OF_WEEK)  + " Dias Laborables: " +retValue 
+							+ strDays[cal.get(Calendar.DAY_OF_WEEK) - 1]);
+				}
+				cal.add(Calendar.DAY_OF_MONTH, 1);
+			}
+		//retValue--;
+
+		if (negative)
+			retValue = retValue * -1;
+		return retValue;
+	}
+	
+	/**
+	 * Returns start date + nbDays which cannot be saturday or sunday or non business days
+	 * @param startDate
+	 * @param nbDays
+	 * @param clientID
+	 * @param trxName
+	 * @return
+	 */
+	public static Timestamp addOnlyBusinessDays(Timestamp startDate, int nbDays, int clientID, String trxName)	{
+		Timestamp retValue = startDate;
+		while (nbDays > 0) {
+			retValue = TimeUtil.addDays(retValue, 1);
+			StringBuilder sql = new StringBuilder("SELECT nextBusinessDay(?,?) FROM DUAL");
+			retValue = DB.getSQLValueTSEx(trxName, sql.toString(), retValue, clientID);
+			nbDays--;
+		}
+		return retValue;
+	}
+	
+	/**
+	 * Returns number of Saturday and Sunday between 2 dates
+	 * @param startDate
+	 * @param endDate
+	 * @param clientID
+	 * @param trxName
+	 * @return
+	 */
+	public static int getWeekendsDaysBetween(Timestamp startDate, Timestamp endDate, int clientID, String trxName) {
+		int retValue = 0;
+		
+		if (startDate.equals(endDate))
+			return 0;
+	
+			boolean negative = false;
+			if (endDate.before(startDate)) {
+				negative = true;
+				Timestamp temp = startDate;
+				startDate = endDate;
+				endDate = temp;
+			}
+	
+			ArrayList<Timestamp> nbd = new ArrayList<Timestamp>();
+			StringBuilder sql = new StringBuilder("SELECT Date1, Name FROM C_NonBusinessDay WHERE AD_Client_ID IN (0, ").append(clientID)
+					.append(") AND Date1 >= ").append(DB.TO_DATE(startDate)).append(" AND Date1 <= ").append(DB.TO_DATE(endDate));
+			PreparedStatement ps = null;
+			ResultSet rs = null;
+			try {
+				ps = DB.prepareStatement(sql.toString(), trxName);
+				rs = ps.executeQuery();
+				while (rs.next())
+					nbd.add(rs.getTimestamp(1));
+			} catch (Exception e) {
+			e.printStackTrace();
+			} finally {
+				DB.close(rs, ps);
+			}
+	
+			GregorianCalendar cal = new GregorianCalendar();
+			cal.setTime(startDate);
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+	
+			GregorianCalendar calEnd = new GregorianCalendar();
+			calEnd.setTime(endDate);
+			calEnd.set(Calendar.HOUR_OF_DAY, 0);
+			calEnd.set(Calendar.MINUTE, 0);
+			calEnd.set(Calendar.SECOND, 0);
+			calEnd.set(Calendar.MILLISECOND, 0);
+			System.out.println("getWeekendsDaysBetween - Start=" + startDate + ", End=" + endDate + ", dayStart=" + cal.get(Calendar.DAY_OF_YEAR) + ", dayEnd=" + calEnd.get(Calendar.DAY_OF_YEAR));
+			while (cal.before(calEnd) || cal.equals(calEnd)) {
+				if (!nbd.contains(new Timestamp(cal.getTimeInMillis()))) {
+					if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)
+						retValue++;
+						String[] strDays = new String[] { "Sunday", "Monday", "Tuesday","Wednesday", "Thusday", "Friday", "Saturday" };
+						System.out.println("getWeekendsDaysBetween - Start= " + cal.get(Calendar.DAY_OF_WEEK) + " Sabado + Domingo: " +retValue 
+							+ strDays[cal.get(Calendar.DAY_OF_WEEK) - 1]);
+				}
+				cal.add(Calendar.DAY_OF_MONTH, 1);
+			}
+	
+		//retValue--;
+
+		if (negative)
+			retValue = retValue * -1;
+		return retValue;
+	}
+	
+	/*************************************************************************
+	 *  sqlGetWeekEndDaysBetween
+	 *  Description: Return absolute WeekEnd Days (Saturdays and Sundays)
+	 *  				Does not takes care of Non BusinessDays
+	 *  @param Timestamp startDate,
+	 *  @param Timestamp endDate, 
+	 *  @param int p_AD_Client_ID, 
+	 *  @param String trxName
+	 * Returns BigDecimal number of non business days between 2 dates 
+	 * ***********************************************************************/
+	public static int sqlGetWeekEndDaysBetween(Timestamp startDate, Timestamp endDate, int clientID, String trxName) {
+		int retValue = 0;
+
+		if (startDate.equals(endDate))
+			return 0;
+
+		boolean negative = false;
+		if (endDate.before(startDate)) {
+			negative = true;
+			Timestamp temp = startDate;
+			startDate = endDate;
+			endDate = temp;
+		}
+
+		GregorianCalendar cal = new GregorianCalendar();
+		cal.setTime(startDate);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		GregorianCalendar calEnd = new GregorianCalendar();
+		calEnd.setTime(endDate);
+		calEnd.set(Calendar.HOUR_OF_DAY, 0);
+		calEnd.set(Calendar.MINUTE, 0);
+		calEnd.set(Calendar.SECOND, 0);
+		calEnd.set(Calendar.MILLISECOND, 0);
+
+		while (cal.before(calEnd) || cal.equals(calEnd)) {
+			if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+				retValue++;
+			}
+			cal.add(Calendar.DAY_OF_MONTH, 1);
+		}
+		if (negative)
+			retValue = retValue * -1;
+		return retValue;
+	}
+	
 } // MHRProcess

@@ -49,10 +49,10 @@ public class HR_PrintExportPaySelection extends CustomProcess {
 	  * @return
 	  */
 	private String exportToFile(MPrintFormat printFormat, MHRPaymentSelection hrPaySelection) {
-		String className = printFormat.getClassname();
+		String className = printFormat.get_ValueAsString("Classname");
 		int no = 0;
 		StringBuffer err = new StringBuffer("");
-		if(className == null)
+		if(className == null || className == "")
 			return "@Error@: El Formato de Impresion debe indicar el Nombre de la Clase";
 		
 		I_ReportExport reportExport = null;
