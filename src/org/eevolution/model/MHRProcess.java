@@ -3444,4 +3444,119 @@ public class MHRProcess extends X_HR_Process implements DocAction {
 		return retValue;
 	}
 	
-} // MHRProcess
+	public static int getWeekEndDaysBetween(String conceptValue, int HR_Employee_ID) {
+		MHRConcept concept = MHRConcept.forValue(Env.getCtx(), conceptValue.trim());
+		
+		List<Object> params = new ArrayList<Object>();
+		StringBuilder whereClause = new StringBuilder();
+
+		whereClause.append(" AND HR_Concept_ID = ? ");
+		params.add(concept.getHR_Concept_ID());
+		whereClause.append(
+				" AND EXISTS (SELECT 1 FROM HR_Concept conc WHERE conc.HR_Concept_ID = HR_Attribute.HR_Concept_ID )");
+
+		// Check the concept is within a valid range for the attribute
+		if (concept.isEmployee()) {
+			MHREmployee employee = new MHREmployee(Env.getCtx(), HR_Employee_ID, null);
+			whereClause.append(" AND C_BPartner_ID = ? AND (HR_Employee_ID = ? OR HR_Employee_ID IS NULL)");
+			params.add(employee.getC_BPartner_ID());
+			params.add(employee.get_ID());
+		}
+
+		MHRAttribute att = new Query(Env.getCtx(), MHRAttribute.Table_Name, whereClause.toString(), null)
+				.setParameters(params).setOnlyActiveRecords(true)
+				.setOrderBy(MHRAttribute.COLUMNNAME_ValidFrom + " DESC").first();
+		if (att == null || concept.isRegistered())
+			return -1;
+		return sqlGetWeekEndDaysBetween(att.getValidFrom(), att.getValidTo(), att.getAD_Client_ID(), null);
+	}
+	
+	public double getAttributeDaysBetweenBreak(String pConcept, Timestamp date1, Timestamp date2) {
+	    MHRConcept concept = MHRConcept.forValue(getCtx(), pConcept);
+	    if (concept == null)
+	      return 0;
+	    
+	    ArrayList<Object> params = new ArrayList<Object>();
+	    StringBuilder whereClause = new StringBuilder();
+	    // check ValidFrom:
+	    whereClause.append(MHRAttribute.COLUMNNAME_ValidFrom + "<=?");
+	    params.add(date2);
+	    // check client
+	    whereClause.append(" AND AD_Client_ID = ?");
+	    params.add(getAD_Client_ID());
+	    // check concept
+	    whereClause.append(
+	        " AND EXISTS (SELECT 1 FROM HR_Concept c WHERE c.HR_Concept_ID=HR_Attribute.HR_Concept_ID AND HR_Attribute.IsActive='Y' AND c.Value = ? "
+	            + " AND (HR_Attribute.validto IS NULL OR HR_Attribute.validto >= ?) )");
+	    params.add(pConcept);
+	    params.add(date1);
+	    //
+	    if (!concept.getType().equals(MHRConcept.TYPE_Information)) {
+	      whereClause.append(" AND " + MHRAttribute.COLUMNNAME_C_BPartner_ID + " = ?");
+	      params.add(m_C_BPartner_ID);
+	    }
+	    // LVE Localizacion Venezuela
+	    // when is employee, it is necessary to check if the organization of the
+	    // employee is equal to that of the attribute
+	    // if (concept.isEmployee()){
+	    whereClause.append(
+	        " AND ( " + MHRAttribute.COLUMNNAME_AD_Org_ID + "=? OR " + MHRAttribute.COLUMNNAME_AD_Org_ID + "= 0 )");
+	    params.add(getAD_Org_ID());
+	    // }
+
+	    MHRAttribute attribute = new Query(getCtx(), MHRAttribute.Table_Name, whereClause.toString(), get_TrxName())
+	        .setParameters(params)
+	        // .setOrderBy(MHRAttribute.COLUMNNAME_ValidFrom + " DESC")
+	        .setOrderBy(MHRAttribute.COLUMNNAME_AD_Org_ID + " DESC").first();
+	    if (attribute != null && attribute.getValidTo() != null) {
+	        //getDays(attribute.getValidFrom(), attribute.getValidTo());
+	        return getBusinessDaysBetween(attribute.getValidFrom(), attribute.getValidTo(), getAD_Client_ID(), concept.get_TrxName());
+	    }
+	    return 0.0; // TODO throw exception ??
+	  } // getAttribute
+	  
+	  public double getAttributeDaysBetweenWeekends(String pConcept, Timestamp date1, Timestamp date2) {
+	    MHRConcept concept = MHRConcept.forValue(getCtx(), pConcept);
+	    if (concept == null)
+	      return 0.0;
+	    
+	    ArrayList<Object> params = new ArrayList<Object>();
+	    StringBuilder whereClause = new StringBuilder();
+	    // check ValidFrom:
+	    whereClause.append(MHRAttribute.COLUMNNAME_ValidFrom + "<=?");
+	    params.add(date2);
+	    // check client
+	    whereClause.append(" AND AD_Client_ID = ?");
+	    params.add(getAD_Client_ID());
+	    // check concept
+	    whereClause.append(
+	        " AND EXISTS (SELECT 1 FROM HR_Concept c WHERE c.HR_Concept_ID=HR_Attribute.HR_Concept_ID AND HR_Attribute.IsActive='Y' AND c.Value = ? "
+	            + " AND (HR_Attribute.validto IS NULL OR HR_Attribute.validto >= ?) )");
+	    params.add(pConcept);
+	    params.add(date1);
+	    //
+	    if (!concept.getType().equals(MHRConcept.TYPE_Information)) {
+	      whereClause.append(" AND " + MHRAttribute.COLUMNNAME_C_BPartner_ID + " = ?");
+	      params.add(m_C_BPartner_ID);
+	    }
+	    // LVE Localizacion Venezuela
+	    // when is employee, it is necessary to check if the organization of the
+	    // employee is equal to that of the attribute
+	    // if (concept.isEmployee()){
+	    whereClause.append(
+	        " AND ( " + MHRAttribute.COLUMNNAME_AD_Org_ID + "=? OR " + MHRAttribute.COLUMNNAME_AD_Org_ID + "= 0 )");
+	    params.add(getAD_Org_ID());
+	    // }
+
+	    MHRAttribute attribute = new Query(getCtx(), MHRAttribute.Table_Name, whereClause.toString(), get_TrxName())
+	        .setParameters(params)
+	        // .setOrderBy(MHRAttribute.COLUMNNAME_ValidFrom + " DESC")
+	        .setOrderBy(MHRAttribute.COLUMNNAME_AD_Org_ID + " DESC").first();
+	    if (attribute != null && attribute.getValidTo() != null) {
+	        //getDays(attribute.getValidFrom(), attribute.getValidTo());
+	        return getWeekendsDaysBetween(attribute.getValidFrom(), attribute.getValidTo(), getAD_Client_ID(), concept.get_TrxName());
+	    }
+	    return 0.0;
+	  }
+	
+  } // MHRProcess
