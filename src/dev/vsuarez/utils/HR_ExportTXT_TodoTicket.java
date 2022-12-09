@@ -152,9 +152,11 @@ public class HR_ExportTXT_TodoTicket implements I_ReportExport {
 
 	    String amountStr = String.format("%.2f", psLine.getAmount().abs()).replace(".", "").replace(",", "");
 	    amountStr = leftPadding(amountStr, 21, "0", true);
+	    
+	    String taxID = replaceAll(bpEmployee.getTaxID());
 
 		employeeInf[EM_TAXID_TYPE] = bpEmployee.getTaxID().substring(0, 1);								// TaxID Type
-	    employeeInf[EM_TAXID] = leftPadding(replaceAll(bpEmployee.getTaxID()).substring(1), 9, "0");	// TaxID
+	    employeeInf[EM_TAXID] = leftPadding(taxID.substring(1, taxID.length()-1), 9, "0");	// TaxID
 	    employeeInf[EM_AMOUNT] = amountStr;																// Amount
 		employeeInf[EM_DATE] = m_DateTrx;																// Date
 		

@@ -220,9 +220,10 @@ public class HR_ExportTXTMercantilFacil implements I_ReportExport {
 					+ "ORDER BY AD_User_ID DESC", bpEmployee.getC_BPartner_ID());
 		if(Util.isEmpty(email, true))
 			email = "";
+		String taxID = replaceAll(bpEmployee.getTaxID());
 		
 		employee[EM_TAXID_TYPE] = bpEmployee.getTaxID().substring(0, 1);
-		employee[EM_TAXID] = leftPadding(replaceAll(bpEmployee.getTaxID()).substring(1), 15, "0");
+		employee[EM_TAXID] = leftPadding(taxID.substring(1, taxID.length()-1), 15, "0");
 		employee[EM_PAYMENT_FORM] = payForm;
 		employee[EM_BANK_ACCOUNTNO] = replaceAll(bankAccountNo);
 		employee[EM_PAY_AMT] = payAmtStr;
