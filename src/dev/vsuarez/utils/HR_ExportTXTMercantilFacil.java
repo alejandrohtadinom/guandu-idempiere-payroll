@@ -227,8 +227,8 @@ public class HR_ExportTXTMercantilFacil implements I_ReportExport {
 		employee[EM_PAYMENT_FORM] = payForm;
 		employee[EM_BANK_ACCOUNTNO] = replaceAll(bankAccountNo);
 		employee[EM_PAY_AMT] = payAmtStr;
-		employee[EM_EMPLOYEE_CODE] = rightPadding(replaceAll(employeeCode), 16, " ");
-		employee[EM_EMPLOYEE_NAME] = rightPadding(taxID.substring(1, taxID.length()-1), 60, " ");
+		employee[EM_EMPLOYEE_CODE] = rightPadding(taxID.substring(1, taxID.length()-1), 16, " ");
+		employee[EM_EMPLOYEE_NAME] = rightPadding(replaceAll(bpEmployee.getName()), 60, " ");
 		employee[EM_EMPLOYEE_MAIL] = rightPadding(email, 50, " ");
 		
 		return employee;
