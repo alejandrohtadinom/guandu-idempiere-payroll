@@ -32,4 +32,4 @@ END;
 
 '
 LANGUAGE 'plpgsql'
-GO
+
