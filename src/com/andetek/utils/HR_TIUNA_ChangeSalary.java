@@ -20,23 +20,35 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.compiere.model.MBPartner;
+import org.compiere.model.MSysConfig;
+import org.compiere.model.Query;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
+import org.eevolution.model.I_HR_Attribute;
+import org.eevolution.model.MHRAttribute;
 import org.eevolution.model.MHREmployee;
+import org.eevolution.model.X_HR_Employee;
+import org.eevolution.model.X_HR_Job;
 import com.andetek.model.MLVERVHRProcessDetail;
 
+
 /**
- * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a>
- * Export class for BANAVIH in payroll
+ * @author <a href="mailto:dmartinez@erpcya.com">Dixon Martinez</a>
+ * Export class for HR_TIUNA_ChangeSalary in payroll
  */
-public class HR_BANABIH implements HRReportExport {
+public class HR_TIUNA_ChangeSalary implements HRReportExport {
 	/** Logger										*/
-	static private CLogger	s_log = CLogger.getCLogger (HR_BANABIH.class);
+	static private CLogger	s_log = CLogger.getCLogger (HR_TIUNA_ChangeSalary.class);
 	/** BPartner Info Index for Nationality	    	*/
 	private static final int     BP_NATIONALITY 	= 0;
 	/** BPartner Info Index for Tax ID		    	*/
@@ -49,19 +61,11 @@ public class HR_BANABIH implements HRReportExport {
 	private static final int     BP_LAST_NAME_1 	= 4;
 	/** BPartner Info Index for First Name 1    	*/
 	private static final int     BP_LAST_NAME_2 	= 5;
-	/** BPartner Info Index for Employee Start Date	*/
-	private static final int     EM_START_DATE 		= 6;
-	/** BPartner Info Index for Employee End Date	*/
-	private static final int     EM_END_DATE 		= 7;
 	
-	/**	Constant Payroll						*/
-	private final String		PAYROLL_CONSTANT	= "N";
-	/**	Constant Payroll Account				*/
-	private final String		PAYROLL_ACCOUNT		= "03213022183810020583";
 	/**	File Extension							*/
 	private final String		FILE_EXTENSION		= ".txt";
 	/**	Separator								*/
-	private final String 		SEPARATOR 			= ",";
+	private final String 		SEPARATOR 			= ";";
 	/**	Number Format							*/
 	private DecimalFormat 		m_NumberFormatt 	= null;
 	/**	Date Format								*/
@@ -79,6 +83,14 @@ public class HR_BANABIH implements HRReportExport {
 	/** Name File								*/
 	private String 					m_NameFile		= null; 
 	
+	private BigDecimal 				m_OldSalary		= Env.ZERO;
+	
+	private Timestamp 				m_Date			= null;
+	
+	public final static char CR  = (char) 0x0D;
+	public final static char LF  = (char) 0x0A; 
+
+	public final static String CRLF  = "" + CR + LF; 
 	
 	@Override
 	public int exportToFile(MLVERVHRProcessDetail[] details, File file, StringBuffer err) {
@@ -91,14 +103,12 @@ public class HR_BANABIH implements HRReportExport {
 			StringBuffer pathName = new StringBuffer(file.isFile() || !file.exists()
 												? file.getParent()
 														: file.getAbsolutePath());
+			String name = MSysConfig.getValue("TIUNA_SALARY_CHANGE", "CAMBIODESALARIO", Env.getAD_Client_ID(Env.getCtx()));
 			//	Add Separator
 			pathName.append(File.separator)
-				//	
-				.append(PAYROLL_CONSTANT)
-				//	Payroll Account
-				.append(PAYROLL_ACCOUNT)
-				//	Accounting Date in format MM YYYY
-				.append(new SimpleDateFormat("MMyyyy").format(pdl.getDateAcct()))
+				.append(name)
+				//	Accounting Date in format DD MM YYYY
+				.append("UPLOADCSA" + new SimpleDateFormat("ddMMyyyy").format(new Date(System.currentTimeMillis())))
 				//	Extension
 				.append(FILE_EXTENSION);
 			
@@ -110,9 +120,9 @@ public class HR_BANABIH implements HRReportExport {
 			s_log.log(Level.WARNING, "Could not delete - " + file.getAbsolutePath(), e);
 		}
 		//	Number Format
-		m_NumberFormatt = new DecimalFormat("000000000.00");
+		m_NumberFormatt = new DecimalFormat("###.00");
 		//	Date Format
-		m_DateFormat = new SimpleDateFormat("ddMMyyyy");
+		m_DateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		m_ProcessDateFormat = new SimpleDateFormat("MMyyyy");
 		//	Current Business Partner
 		int m_Current_BPartner_ID = 0;
@@ -129,18 +139,102 @@ public class HR_BANABIH implements HRReportExport {
 				pdl = details[i];
 				if (pdl == null)
 					continue;
+				if(pdl.get_Value("EmployeeStatus") == null 
+						|| pdl.get_Value("EmployeeStatus").equals("LS")) { //pdl.get_Value("EmployeeStatus").equals(X_HR_Employee.EMPLOYEESTATUS_LeftService)) {
+					continue;
+				}
+				if(pdl.getC_BPartner() != null 
+						&& !pdl.getC_BPartner().isActive()) {
+					continue;
+				}
 				//	Verify Current Business Partner and Month
 				if(m_Current_BPartner_ID != pdl.getC_BPartner_ID()) {
 					writeLine();
 					m_Current_BPartner_ID = pdl.getC_BPartner_ID();
 					m_CurrentMonth = m_ProcessDateFormat.format(pdl.getDateAcct());
-					m_CurrentAmt = pdl.getAmt();
+					ArrayList<Object> params = new ArrayList<Object>();
+					
+					String whereClause ="	HR_Concept_ID = ? "
+							+ "AND C_BPartner_ID = ? "
+							;
+					params.add(pdl.getHR_Concept_ID());
+					params.add(pdl.getC_BPartner_ID());
+					
+					MHRAttribute att = new Query(Env.getCtx(), I_HR_Attribute.Table_Name, whereClause.toString(), null)
+							.setParameters(params)
+							.setOnlyActiveRecords(true)
+							.setOrderBy(I_HR_Attribute.COLUMNNAME_ValidFrom + " DESC")
+							.first();
+					if(att == null)
+						m_CurrentAmt  = Env.ZERO;
+					else {
+						m_CurrentAmt = att.getAmount();
+						m_Date = att.getValidFrom();
+					}
+					
+					whereClause ="	HR_Concept_ID = ? "
+							+ "AND C_BPartner_ID = ? "
+							+ "AND (HR_Attribute_ID <> ? OR HR_Attribute_ID IS NULL) "
+							;
+					params = new ArrayList<Object>();
+					params.add(pdl.getHR_Concept_ID());
+					params.add(pdl.getC_BPartner_ID());
+					params.add(att != null ? att.getHR_Attribute_ID() : null);
+					
+					att = new Query(Env.getCtx(), I_HR_Attribute.Table_Name, whereClause.toString(), null)
+							.setParameters(params)
+							.setOnlyActiveRecords(true)
+							.setOrderBy(I_HR_Attribute.COLUMNNAME_ValidFrom + " DESC")
+							.first();
+					if(att == null)
+						m_OldSalary = Env.ZERO;
+					else
+						m_OldSalary = att.getAmount();
 					m_Current_Pdl = pdl;
 				} else if(m_CurrentMonth != null
-						&& m_CurrentMonth.equals(m_ProcessDateFormat.format(pdl.getDateAcct()))) {
-					m_CurrentAmt = m_CurrentAmt.add(pdl.getAmt());
+						&& !m_CurrentMonth.equals(m_ProcessDateFormat.format(pdl.getDateAcct()))) {
+					
+					ArrayList<Object> params = new ArrayList<Object>();
+					
+					String whereClause ="	HR_Concept_ID = ? "
+							+ "AND C_BPartner_ID = ? "
+							;
+					params.add(pdl.getHR_Concept_ID());
+					params.add(pdl.getC_BPartner_ID());
+					// params.add(pdl.getValidFrom());
+					
+					MHRAttribute att = new Query(Env.getCtx(), I_HR_Attribute.Table_Name, whereClause.toString(), null)
+							.setParameters(params)
+							.setOnlyActiveRecords(true)
+							.setOrderBy(I_HR_Attribute.COLUMNNAME_ValidFrom + " DESC")
+							.first();
+					if(att == null)
+						m_CurrentAmt  = Env.ZERO;
+					else {
+						m_CurrentAmt = att.getAmount();
+						m_Date = att.getValidFrom();
+					}
+					
+					whereClause ="	HR_Concept_ID = ? "
+							+ "AND C_BPartner_ID = ? "
+							+ "AND (HR_Attribute_ID <> ? OR HR_Attribute_ID IS NULL) "
+							;
+					params = new ArrayList<Object>();
+					params.add(pdl.getHR_Concept_ID());
+					params.add(pdl.getC_BPartner_ID());
+					params.add(att != null ? att.getHR_Attribute_ID() : null);
+					
+					att = new Query(Env.getCtx(), I_HR_Attribute.Table_Name, whereClause.toString(), null)
+							.setParameters(params)
+							.setOnlyActiveRecords(true)
+							.setOrderBy(I_HR_Attribute.COLUMNNAME_ValidFrom + " DESC")
+							.first();
+					if(att == null)
+						m_OldSalary = Env.ZERO;
+					else
+						m_OldSalary = att.getAmount();
 				}
-			}   
+			}  
 			//  write last line
 			writeLine();
 			//	Close
@@ -174,41 +268,52 @@ public class HR_BANABIH implements HRReportExport {
 				m_Current_Pdl.getAD_Org_ID(), m_Current_Pdl.get_TrxName());
 		//	Line
 		StringBuffer line = new StringBuffer();
+		
+		//Business PArtner Tax ID
+		String bPartnerTax = bpInfo[BP_TAX_ID];
+		bPartnerTax = bPartnerTax.substring(1, bPartnerTax.length());
+		bPartnerTax =String.format("%0"+ 9 +"d",Integer.parseInt(bPartnerTax));
 		//	Amount
 		if(m_CurrentAmt == null)
 			m_CurrentAmt = Env.ZERO;
 		//	New Line
 		if(m_NoLines > 1)
-			line.append(Env.NL);
+			line.append(CRLF);
 		//	Nationality
 		line.append(bpInfo[BP_NATIONALITY])
 			.append(SEPARATOR)
 			//	Tax ID
-			.append(bpInfo[BP_TAX_ID])
-			.append(SEPARATOR)
-			//	First Name 1
-			.append(bpInfo[BP_FIRST_NAME_1])
-			.append(SEPARATOR)
-			//	First Name 2
-			.append(bpInfo[BP_FIRST_NAME_2])
+			.append(bPartnerTax)
 			.append(SEPARATOR)
 			//	Last Name 1
 			.append(bpInfo[BP_LAST_NAME_1])
-			.append(SEPARATOR)
+			.append(" ")
 			//	Last Name 2
 			.append(bpInfo[BP_LAST_NAME_2])
+			.append(" ")
+			//	First Name 1
+			.append(bpInfo[BP_FIRST_NAME_1])
+			.append(" ")
+			//	First Name 2
+			.append(bpInfo[BP_FIRST_NAME_2])
 			.append(SEPARATOR)
-			//	Amount
-			.append(m_NumberFormatt.format(m_CurrentAmt.doubleValue())
+			//	Old Salary
+			.append(m_NumberFormatt.format(
+					((m_OldSalary.doubleValue() * 30) *12) / 52)
+					.toString()
+					.replace(",", ".")
+					)
+			.append(SEPARATOR)
+			//	New Salary
+			.append(m_NumberFormatt.format(
+					((m_CurrentAmt.doubleValue() * 30) *12) / 52)
 												.toString()
 												.replace(",", ".")
-												.replace(".", ""))
+												)
 			.append(SEPARATOR)
-			//	Employee Start Date
-			.append(bpInfo[EM_START_DATE])
-			.append(SEPARATOR)
-			//	Employee End Date
-			.append(bpInfo[EM_END_DATE]);
+			//	Date new Salary
+			.append(m_DateFormat.format(m_Date))
+			;
 		//	Write Line
 		m_FileWriter.write(line.toString());
 		m_NoLines ++;
@@ -223,7 +328,7 @@ public class HR_BANABIH implements HRReportExport {
 	 * @return String []
 	 */
 	private String [] processBPartner(int p_C_BPartner_ID, int p_AD_Org_ID, String p_TrxName) {
-		String [] bpInfo = new String[8];
+		String [] bpInfo = new String[19];
 		//	
 		//	Get Business Partner
 		MBPartner bpartner = MBPartner.get(Env.getCtx(), p_C_BPartner_ID);
@@ -289,21 +394,21 @@ public class HR_BANABIH implements HRReportExport {
 		//	Valid Employee
 		if(employee == null)
 			return null;
-		//	Get Start Date
-		String startDate = m_DateFormat.format(employee.getStartDate());
-		String endDate = "";
-		//	Get End Date
-		if(employee.get_Value("DateFinish") != null)
-			endDate = m_DateFormat.format(employee.get_Value("DateFinish"));
+		//	Job
+		X_HR_Job m_Job = (X_HR_Job) employee.getHR_Job();
+		String job = "";
+		if(m_Job != null) {
+			job = m_Job.get_ValueAsString("ReferenceNo");
+			if(job == null)
+				job = m_Job.getValue();
+		}
 		//	Set Array
 		bpInfo[BP_NATIONALITY]	= bpartner.get_ValueAsString("Nationality");
 		bpInfo[BP_TAX_ID]		= bpartner.getValue();
-		bpInfo[BP_FIRST_NAME_1]	= m_FirstName1;
-		bpInfo[BP_FIRST_NAME_2]	= m_FirstName2;
-		bpInfo[BP_LAST_NAME_1]	= m_LastName1;
-		bpInfo[BP_LAST_NAME_2]	= m_LastName2;
-		bpInfo[EM_START_DATE]	= startDate;
-		bpInfo[EM_END_DATE]		= endDate;
+		bpInfo[BP_FIRST_NAME_1]	= replaceAll(m_FirstName1);
+		bpInfo[BP_FIRST_NAME_2]	= replaceAll(m_FirstName2);
+		bpInfo[BP_LAST_NAME_1]	= replaceAll(m_LastName1);
+		bpInfo[BP_LAST_NAME_2]	= replaceAll(m_LastName2);
 		//	Return
 		return bpInfo;
 	}
@@ -314,6 +419,15 @@ public class HR_BANABIH implements HRReportExport {
 		return m_NameFile;
 	}
 
-	
+	/**
+	 * Function that removes accents and special characters from a string of text, using the canonical method.
+	 * @param input
+	 * @return string of clean text of accents and special characters.
+	 */
+	public static String replaceAll(String input) {
+	    String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+	    Pattern pattern = Pattern.compile("[^\\p{ASCII}]");
+	    return pattern.matcher(normalized).replaceAll("");
+	}
 }
 

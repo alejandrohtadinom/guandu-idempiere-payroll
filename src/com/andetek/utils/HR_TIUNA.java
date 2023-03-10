@@ -20,23 +20,30 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.compiere.model.MBPartner;
+import org.compiere.model.MSysConfig;
 import org.compiere.util.CLogger;
+import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.eevolution.model.MHREmployee;
+import org.eevolution.model.X_HR_Job;
 import com.andetek.model.MLVERVHRProcessDetail;
 
 /**
  * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a>
  * Export class for BANAVIH in payroll
  */
-public class HR_BANABIH implements HRReportExport {
+public class HR_TIUNA implements HRReportExport {
 	/** Logger										*/
-	static private CLogger	s_log = CLogger.getCLogger (HR_BANABIH.class);
+	static private CLogger	s_log = CLogger.getCLogger (HR_TIUNA.class);
 	/** BPartner Info Index for Nationality	    	*/
 	private static final int     BP_NATIONALITY 	= 0;
 	/** BPartner Info Index for Tax ID		    	*/
@@ -53,17 +60,39 @@ public class HR_BANABIH implements HRReportExport {
 	private static final int     EM_START_DATE 		= 6;
 	/** BPartner Info Index for Employee End Date	*/
 	private static final int     EM_END_DATE 		= 7;
+	/** BPartner Info Index for Employee Worker Type*/
+	private static final int     EM_WORKER_TYPE 	= 8;
+	/** BPartner Info Index for Employee Job Name	*/
+	private static final int     EM_JOB_NAME	 	= 9;
+	/** BPartner Info Index for Employee Working Condition	*/
+	private static final int     EM_WORKING_CONDITION	 	= 10;
+	/** BPartner Info Index for Driving Skill	*/
+	private static final int     BP_DRIVING_SKILL	 = 11;
+	/** BPartner Info Index for State*/
+	private static final int     BP_STATE	 = 12;
+	/** BPartner Info Index for Municipality Name*/
+	private static final int     BP_MUNICIPALITY_NAME = 13;
+	/** BPartner Info Index for Location*/
+	private static final int     BP_LOCATION	 = 14;
+	/** BPartner Info Index for Phone*/
+	private static final int     BP_PHONE	 = 15;
+	/** BPartner Info Index for Phone*/
+	private static final int     BP_PHONE2	 = 16;
+	/** BPartner Info Index for Email*/
+	private static final int     BP_EMAIL	 = 17;
+	/** BPartner Info Index for Parish Name*/
+	private static final int     BP_PARISH_NAME = 18;
 	
 	/**	Constant Payroll						*/
 	private final String		PAYROLL_CONSTANT	= "N";
 	/**	Constant Payroll Account				*/
-	private final String		PAYROLL_ACCOUNT		= "03213022183810020583";
+	private String				PAYROLL_ACCOUNT		= "03213022183810020583";
 	/**	File Extension							*/
 	private final String		FILE_EXTENSION		= ".txt";
 	/**	Separator								*/
-	private final String 		SEPARATOR 			= ",";
+	private final String 		SEPARATOR 			= ";";
 	/**	Number Format							*/
-	private DecimalFormat 		m_NumberFormatt 	= null;
+//	private DecimalFormat 		m_NumberFormatt 	= null;
 	/**	Date Format								*/
 	private SimpleDateFormat 	m_DateFormat 		= null;
 	/**	Date Format for Process					*/
@@ -79,6 +108,10 @@ public class HR_BANABIH implements HRReportExport {
 	/** Name File								*/
 	private String 					m_NameFile		= null; 
 	
+	public final static char CR  = (char) 0x0D;
+	public final static char LF  = (char) 0x0A; 
+
+	public final static String CRLF  = "" + CR + LF; 
 	
 	@Override
 	public int exportToFile(MLVERVHRProcessDetail[] details, File file, StringBuffer err) {
@@ -91,6 +124,10 @@ public class HR_BANABIH implements HRReportExport {
 			StringBuffer pathName = new StringBuffer(file.isFile() || !file.exists()
 												? file.getParent()
 														: file.getAbsolutePath());
+			String payrollAccount = MSysConfig.getValue("PAYROLL_ACCOUNT", Env.getAD_Client_ID(Env.getCtx()));
+			if(payrollAccount != null) {
+				PAYROLL_ACCOUNT = payrollAccount;
+			}			
 			//	Add Separator
 			pathName.append(File.separator)
 				//	
@@ -98,7 +135,7 @@ public class HR_BANABIH implements HRReportExport {
 				//	Payroll Account
 				.append(PAYROLL_ACCOUNT)
 				//	Accounting Date in format MM YYYY
-				.append(new SimpleDateFormat("MMyyyy").format(pdl.getDateAcct()))
+				.append(new SimpleDateFormat("ddMMyyyy").format(pdl.getDateAcct()))
 				//	Extension
 				.append(FILE_EXTENSION);
 			
@@ -110,9 +147,9 @@ public class HR_BANABIH implements HRReportExport {
 			s_log.log(Level.WARNING, "Could not delete - " + file.getAbsolutePath(), e);
 		}
 		//	Number Format
-		m_NumberFormatt = new DecimalFormat("000000000.00");
+//		m_NumberFormatt = new DecimalFormat("000000000.00");
 		//	Date Format
-		m_DateFormat = new SimpleDateFormat("ddMMyyyy");
+		m_DateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		m_ProcessDateFormat = new SimpleDateFormat("MMyyyy");
 		//	Current Business Partner
 		int m_Current_BPartner_ID = 0;
@@ -138,9 +175,10 @@ public class HR_BANABIH implements HRReportExport {
 					m_Current_Pdl = pdl;
 				} else if(m_CurrentMonth != null
 						&& m_CurrentMonth.equals(m_ProcessDateFormat.format(pdl.getDateAcct()))) {
-					m_CurrentAmt = m_CurrentAmt.add(pdl.getAmt());
+					//	m_CurrentAmt = m_CurrentAmt.add(pdl.getAmt());
+					m_CurrentAmt = pdl.getAmt();
 				}
-			}   
+			}  
 			//  write last line
 			writeLine();
 			//	Close
@@ -174,41 +212,81 @@ public class HR_BANABIH implements HRReportExport {
 				m_Current_Pdl.getAD_Org_ID(), m_Current_Pdl.get_TrxName());
 		//	Line
 		StringBuffer line = new StringBuffer();
+		
+		//Business PArtner Tax ID
+		String bPartnerTax = bpInfo[BP_TAX_ID];
+		bPartnerTax = bPartnerTax.substring(1, bPartnerTax.length());
+		bPartnerTax =String.format("%0"+ 9 +"d",Integer.parseInt(bPartnerTax));
 		//	Amount
 		if(m_CurrentAmt == null)
 			m_CurrentAmt = Env.ZERO;
 		//	New Line
 		if(m_NoLines > 1)
-			line.append(Env.NL);
+			line.append(CRLF);
 		//	Nationality
 		line.append(bpInfo[BP_NATIONALITY])
 			.append(SEPARATOR)
 			//	Tax ID
-			.append(bpInfo[BP_TAX_ID])
-			.append(SEPARATOR)
-			//	First Name 1
-			.append(bpInfo[BP_FIRST_NAME_1])
-			.append(SEPARATOR)
-			//	First Name 2
-			.append(bpInfo[BP_FIRST_NAME_2])
+			.append(bPartnerTax)
 			.append(SEPARATOR)
 			//	Last Name 1
 			.append(bpInfo[BP_LAST_NAME_1])
-			.append(SEPARATOR)
+			.append(" ")
 			//	Last Name 2
 			.append(bpInfo[BP_LAST_NAME_2])
-			.append(SEPARATOR)
-			//	Amount
-			.append(m_NumberFormatt.format(m_CurrentAmt.doubleValue())
-												.toString()
-												.replace(",", ".")
-												.replace(".", ""))
+			.append(" ")
+			//	First Name 1
+			.append(bpInfo[BP_FIRST_NAME_1])
+			.append(" ")
+			//	First Name 2
+			.append(bpInfo[BP_FIRST_NAME_2])
 			.append(SEPARATOR)
 			//	Employee Start Date
 			.append(bpInfo[EM_START_DATE])
 			.append(SEPARATOR)
-			//	Employee End Date
-			.append(bpInfo[EM_END_DATE]);
+			//	Amount
+			/*.append(m_NumberFormatt.format(m_CurrentAmt.doubleValue())
+												.toString()
+												.replace(",", ".")
+												//.replace(".", "")
+												)*/
+			.append(m_CurrentAmt.toString().replace(",", "."))
+			
+			.append(SEPARATOR)
+			//	Worker Type
+			.append(bpInfo[EM_WORKER_TYPE])
+			.append(SEPARATOR)
+			//	Job
+			.append(bpInfo[EM_JOB_NAME])
+			.append(SEPARATOR)
+			//	Working Condition
+			.append(bpInfo[EM_WORKING_CONDITION])
+			.append(SEPARATOR)
+			//	Driving Skill
+			.append(bpInfo[BP_DRIVING_SKILL])
+			.append(SEPARATOR)
+			//	State
+			.append(bpInfo[BP_STATE] )
+			.append(SEPARATOR)
+			//	Municipality Name
+			.append(bpInfo[BP_MUNICIPALITY_NAME])
+			.append(SEPARATOR)
+			//	Parish
+			.append(bpInfo[BP_PARISH_NAME])
+			.append(SEPARATOR)
+			//	Location
+			.append(bpInfo[BP_LOCATION])
+			.append(SEPARATOR)
+			//	Phone
+			.append(bpInfo[BP_PHONE].toString().replace("-", ""))
+			.append(SEPARATOR)
+			//	Phone 2
+			.append(bpInfo[BP_PHONE2].toString().replace("-", ""))
+			.append(SEPARATOR)			
+			//	Email
+			.append(bpInfo[BP_EMAIL])
+			.append(SEPARATOR)	
+			;
 		//	Write Line
 		m_FileWriter.write(line.toString());
 		m_NoLines ++;
@@ -223,7 +301,7 @@ public class HR_BANABIH implements HRReportExport {
 	 * @return String []
 	 */
 	private String [] processBPartner(int p_C_BPartner_ID, int p_AD_Org_ID, String p_TrxName) {
-		String [] bpInfo = new String[8];
+		String [] bpInfo = new String[19];
 		//	
 		//	Get Business Partner
 		MBPartner bpartner = MBPartner.get(Env.getCtx(), p_C_BPartner_ID);
@@ -295,15 +373,106 @@ public class HR_BANABIH implements HRReportExport {
 		//	Get End Date
 		if(employee.get_Value("DateFinish") != null)
 			endDate = m_DateFormat.format(employee.get_Value("DateFinish"));
+		//	Job
+		X_HR_Job m_Job = (X_HR_Job) employee.getHR_Job();
+		String job = "";
+		if(m_Job != null) {
+			job = m_Job.get_ValueAsString("ReferenceNo");
+			if(job == null)
+				job = m_Job.getValue();
+		}
 		//	Set Array
 		bpInfo[BP_NATIONALITY]	= bpartner.get_ValueAsString("Nationality");
 		bpInfo[BP_TAX_ID]		= bpartner.getValue();
-		bpInfo[BP_FIRST_NAME_1]	= m_FirstName1;
-		bpInfo[BP_FIRST_NAME_2]	= m_FirstName2;
-		bpInfo[BP_LAST_NAME_1]	= m_LastName1;
-		bpInfo[BP_LAST_NAME_2]	= m_LastName2;
+		bpInfo[BP_FIRST_NAME_1]	= HR_TIUNA.replaceAll(m_FirstName1);
+		bpInfo[BP_FIRST_NAME_2]	= HR_TIUNA.replaceAll(m_FirstName2);
+		bpInfo[BP_LAST_NAME_1]	= HR_TIUNA.replaceAll(m_LastName1);
+		bpInfo[BP_LAST_NAME_2]	= HR_TIUNA.replaceAll(m_LastName2);
 		bpInfo[EM_START_DATE]	= startDate;
 		bpInfo[EM_END_DATE]		= endDate;
+		bpInfo[EM_WORKER_TYPE]	= employee.get_ValueAsString("WorkerType");
+		if(bpInfo[EM_WORKER_TYPE] == null)
+			bpInfo[EM_WORKER_TYPE] = "NO WORKER TYPE";
+		bpInfo[EM_JOB_NAME] = job;
+		bpInfo[EM_WORKING_CONDITION] = employee.get_ValueAsString("WorkingCondition");
+		if(bpInfo[EM_WORKING_CONDITION] == null)
+			bpInfo[EM_WORKING_CONDITION] = "NO WORKING CONDITION";
+		bpInfo[BP_DRIVING_SKILL] = bpartner.get_ValueAsString("DrivingSkill");
+		if(bpInfo[BP_DRIVING_SKILL] == null)
+			bpInfo[BP_DRIVING_SKILL] = "NO DRIVING SKILL";
+		
+		//	Sql
+		String sql = "SELECT "
+				+ "r.Value RegionValue,"	//	1
+				+ "cnt.Name CountryName, "//	2
+				+ "c.Name CityName, "	//	3	
+				+ "parish.Value ParishValue, "	//	4
+				+ "	municipality.Value MunicipalityValue,"	// 5
+				+ "(COALESCE(l.Address1,'') || ' ' || COALESCE(l.Address2,'')|| ' ' || COALESCE(l.Address3,'') || ' ' || COALESCE(l.Address4,'') ) AS Location,  "	//	6
+				+ "bpl.Phone, "	//	7
+				+ "bpl.Phone2, " //	8
+				+ "bpl.Email " //	9
+				+ "FROM C_BPartner_Location bpl "
+				+ "INNER JOIN C_Location l ON (bpl.C_Location_ID = l.C_Location_ID) "
+				+ "INNER JOIN C_Country cnt ON (l.C_Country_ID = cnt.C_Country_ID) "
+				+ "INNER JOIN C_Region r ON (l.C_Region_ID = r.C_Region_ID) "
+				+ "INNER JOIN C_City c ON (l.C_City_ID = c.C_City_ID) "
+				+ "INNER JOIN (SELECT l.Value, COALESCE(trl.Name, l.Name) AS Name "
+				+ "FROM AD_Ref_List l "
+				+ "INNER JOIN AD_Ref_List_Trl trl ON(l.AD_Ref_List_ID = trl.AD_Ref_List_ID)"
+				+ "WHERE AD_Reference_ID=3000244 )  parish ON (bpl.Parish = parish.Value) "
+				+ "INNER JOIN (SELECT l.Value, COALESCE(trl.Name, l.Name) AS Name "
+				+ "FROM AD_Ref_List l"
+				+ "	INNER JOIN AD_Ref_List_Trl trl ON(l.AD_Ref_List_ID = trl.AD_Ref_List_ID)"
+				+ "	WHERE AD_Reference_ID=3000245"
+				+ ")  municipality ON (bpl.Municipality = municipality.Value)"
+				+ "WHERE C_BPartner_ID = ? AND bpl.IsActive ='Y' "
+				+ "ORDER BY bpl.C_BPartner_Location_ID DESC ";
+		
+		s_log.fine("SQL=" + sql);
+		
+		try {
+			PreparedStatement pstmt = DB.prepareStatement(sql, null);
+			pstmt.setInt(1, bpartner.getC_BPartner_ID());
+			ResultSet rs = pstmt.executeQuery();
+			//
+			if (rs.next()) {
+				bpInfo[BP_STATE] = rs.getString("RegionValue");
+				if (bpInfo[BP_STATE] == null)
+					bpInfo[BP_STATE] = "NO ESTADO";
+				bpInfo[BP_MUNICIPALITY_NAME] = rs.getString("MunicipalityName");
+				if (bpInfo[BP_MUNICIPALITY_NAME] == null)
+					bpInfo[BP_MUNICIPALITY_NAME] = "NO MUNICIPALITY";
+				bpInfo[BP_PARISH_NAME] = rs.getString("ParisValue");
+					if (bpInfo[BP_PARISH_NAME] == null)
+						bpInfo[BP_PARISH_NAME] = "NO PARISH";
+				bpInfo[BP_LOCATION] = rs.getString("Location");
+				if (bpInfo[BP_LOCATION] == null)
+					bpInfo[BP_LOCATION] = "NO LOCATION";
+				bpInfo[BP_PHONE] = rs.getString("Phone2");
+				if (bpInfo[BP_PHONE] == null)
+					bpInfo[BP_PHONE] = "NO PHONE";
+				bpInfo[BP_PHONE2] = rs.getString("Phone");
+				if (bpInfo[BP_PHONE2] == null)
+					bpInfo[BP_PHONE2] = "NO PHONE2";
+				bpInfo[BP_EMAIL] = rs.getString("Email");
+				if (bpInfo[BP_EMAIL] == null)
+					bpInfo[BP_EMAIL] = "NO EMAIL";
+			} else {
+				bpInfo[BP_STATE] = "NO ESTADO";
+				bpInfo[BP_MUNICIPALITY_NAME] = "NO MUNICIPALITY";
+				bpInfo[BP_LOCATION] = "NO LOCATION";
+				bpInfo[BP_PHONE] = "NO PHONE";
+				bpInfo[BP_PHONE2] = "NO PHONE2";
+				bpInfo[BP_EMAIL] = "NO EMAIL";
+			}
+			rs.close();
+			pstmt.close();
+		}
+		catch (SQLException e) {
+			s_log.log(Level.SEVERE, sql, e);
+		}
+		
 		//	Return
 		return bpInfo;
 	}
@@ -314,6 +483,15 @@ public class HR_BANABIH implements HRReportExport {
 		return m_NameFile;
 	}
 
-	
+	/**
+	 * Function that removes accents and special characters from a string of text, using the canonical method.
+	 * @param input
+	 * @return string of clean text of accents and special characters.
+	 */
+	public static String replaceAll(String input) {
+	    String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+	    Pattern pattern = Pattern.compile("[^\\p{ASCII}]");
+	    return pattern.matcher(normalized).replaceAll("");
+	}
 }
 
