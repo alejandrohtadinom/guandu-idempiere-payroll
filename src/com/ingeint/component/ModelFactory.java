@@ -54,6 +54,8 @@ import com.ingeint.model.MHR_Shifts_Line;
 import com.ingeint.model.MINGMovement;
 import com.ingeint.model.MPaymentSelectionType;
 
+// Andetek
+import com.andetek.model.CustomMHRPaymentSelection;
 
 /**
  * Model Factory
@@ -89,5 +91,7 @@ public class ModelFactory extends CustomModelFactory {
 		registerTableModel(MHR_Shift_Incident.Table_Name, MHR_Shift_Incident.class);
 		registerTableModel(MHR_Shift_Incident_Line.Table_Name, MHR_Shift_Incident_Line.class);
 		registerTableModel(MINGMovement.Table_Name, MINGMovement.class);
+		// Andetek
+		registerTableModel(MHRPaymentSelection.Table_Name, CustomMHRPaymentSelection.class);
 	}
 }

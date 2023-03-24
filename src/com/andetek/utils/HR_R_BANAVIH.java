@@ -24,10 +24,10 @@ import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
+import com.ingeint.base.CustomProcess;
 import com.ingeint.model.MHRPaymentSelection;
 
-public class HR_R_BANAVIH extends SvrProcess {
-	
+public class HR_R_BANAVIH extends CustomProcess {
 	public int p_AD_Org_ID = 0;
 	public int p_HR_Department_ID = 0;
 	public int p_HR_Contract_ID = 0;
@@ -38,10 +38,9 @@ public class HR_R_BANAVIH extends SvrProcess {
 	public StringBuffer m_parameterWhere = new StringBuffer();
 	public StringBuffer m_parameterGroupBy = new StringBuffer();
 	public StringBuffer m_parameterOrderBy = new StringBuffer();
-	
+
 	protected void prepare() {
 		StringBuilder sb = new StringBuilder("Record_ID=").append(getRecord_ID());
-		
 		ProcessInfoParameter[] param = getParameter();
 
 		// Atraviesa el arreglo de parametros y los asigna a las variables
@@ -72,7 +71,6 @@ public class HR_R_BANAVIH extends SvrProcess {
 			} else if (name.equals("DateAcct_To")) {
 				p_DateAcct_To = ((Timestamp) p.getParameter());
 			}
-			
 			m_parameterWhere.append("");
 		}
 	}
@@ -96,13 +94,14 @@ public class HR_R_BANAVIH extends SvrProcess {
 
 		int no = DB.executeUpdate(sb.toString(), get_TrxName());
 		if (no > 0) {
+			log.fine("Se insertaron " + no + " registros");
+			log.finest(sb.toString());
 			return "Se insertaron " + no + " registros";
 		} else {
 			return "No se insertaron registros";
 		}
 
-		log.fine("Se insertaron " + no + " registros");
-		log.finest(sb.toString());
+		
 	}
 
 	public void setWhere() {

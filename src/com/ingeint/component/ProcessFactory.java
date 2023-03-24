@@ -15,7 +15,6 @@ public class ProcessFactory extends CustomProcessFactory{
 	@Override
 	protected void initialize() {
 		registerProcess(org.eevolution.process.HRCreatePeriods.class);
-
 		registerProcess(com.ingeint.process.RecalculateLoan.class);
 		registerProcess(com.ingeint.process.PaymentSelection.class);
 		registerProcess(com.ingeint.process.GenerateLinesIncidents.class);
@@ -26,5 +25,7 @@ public class ProcessFactory extends CustomProcessFactory{
 		registerProcess(org.eevolution.process.HRCreateConcept.class);
 		registerProcess(dev.vsuarez.process.HR_ConceptTest.class);
 		registerProcess(dev.vsuarez.process.HR_PrintExportPaySelection.class);
+		// Clase para el reporte del BANAVIH
+		registerProcess(com.andetek.utils.HR_R_BANAVIH.class);
 	}
 }
