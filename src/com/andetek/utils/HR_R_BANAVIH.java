@@ -104,6 +104,57 @@ public class HR_R_BANAVIH extends CustomProcess {
 		
 	}
 
+
+	/*
+	// ===================================================================================================================================================================
+	public void generatePayrollReport() {
+		if (isExtendedClass()) {
+			// Get the list of employees for this payment selection
+			List<MHRPaymentSelectionLine> paymentSelectionLines = getLines();
+			for (MHRPaymentSelectionLine paymentSelectionLine : paymentSelectionLines) {
+				// Get the employee for this payment selection line
+				MEmployee employee = paymentSelectionLine.getEmployee();
+				// Get the employee's nationality from the TaxID field in the MBPartner model
+				String taxID = employee.getMBPartner().getTaxID();
+				String nationality = taxID.substring(0, 1);
+				// Get the employee's ID number from the TaxID field in the MBPartner model
+				String idNumber = taxID.substring(1);
+				// Get other required fields from the employee model
+				String firstName = employee.getName();
+				String lastName = employee.get_ValueAsString("LastName");
+				BigDecimal totalSalary = paymentSelectionLine.getTotalAmt();
+				Timestamp hireDate = employee.getHireDate();
+				Timestamp terminationDate = employee.get_ValueAsTimestamp("TerminationDate");
+				// Create a new CSV file for this employee
+				File csvFile = new File(firstName + "_" + lastName + ".csv");
+				try {
+					FileWriter writer = new FileWriter(csvFile);
+					writer.append(nationality);
+					writer.append(",");
+					writer.append(idNumber);
+					writer.append(",");
+					writer.append(firstName);
+					writer.append(",");
+					writer.append(lastName);
+					writer.append(",");
+					writer.append(totalSalary.toString());
+					writer.append(",");
+					writer.append(hireDate.toString());
+					writer.append(",");
+					if (terminationDate != null) {
+						writer.append(terminationDate.toString());
+					}
+					writer.flush();
+					writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	// ===================================================================================================================================================================
+	*/
+
 	public void setWhere() {
 		StringBuilder sb = new StringBuilder(" WHERE 1=1 ");
 		if (p_AD_Org_ID > 0) {
