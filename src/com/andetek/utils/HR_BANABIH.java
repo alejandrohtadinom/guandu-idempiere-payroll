@@ -41,6 +41,9 @@ import org.eevolution.model.MHRProcess;
 /**
  * @author <a href="mailto:tadinomalejandroh@gmail.com">Alejandro H Tadino M</a>
  * Export class for BANAVIH in payroll
+ * TODO:
+ * 1. Añadir un metodo que sume todas las asiganaciones por concepto salarial
+ * dentro del rango de fecha del movimiento.
  */
 public class HR_BANABIH implements I_ReportExport {
   /** Logger */
@@ -323,6 +326,25 @@ public class HR_BANABIH implements I_ReportExport {
 
     // Return
     return bpInfo;
+  }
+
+  /**
+   * Get Amount
+   * @author <a href="mailto:tadinomalejandroh@gmail.com">Alejandro H Tadino
+   * M</a> 8/12/2014, 15:08:36
+   * @return BigDecimal
+   */
+  public BigDecimal getAmount() {
+    BigDecimal m_CurrentAmt = Env.ZERO;
+    BigDecimal t_CurrentAmt =
+        new Query(Env.getCtx(), MHRPaymentSelectionLine.Table_Name,
+                  "HR_PaymentSelection_ID = ? AND DateDoc between(? and ?)",
+                  null)
+            .setParameters(getHR_PaymentSelection_ID(), p_DateFrom, p_DateTo)
+            .setClient_ID()
+            .setOnlyActiveRecords(true)
+            .sum(MHRPaymentSelectionLine.COLUMNNAME_Amount);
+    return m_CurrentAmt;
   }
 
   /**
